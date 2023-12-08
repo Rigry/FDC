@@ -79,8 +79,8 @@ all: main-build
 main-build: FC.elf secondary-outputs
 
 # Tool invocations
-FC.elf: $(OBJS) $(USER_OBJS) C:\cube\FC\STM32F103RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "FC.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\cube\FC\STM32F103RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="FC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+FC.elf: $(OBJS) $(USER_OBJS) C:\Projects\cube\FC\STM32F103RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "FC.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Projects\cube\FC\STM32F103RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="FC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

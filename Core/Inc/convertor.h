@@ -64,6 +64,7 @@ class Convertor {
 	bool enable{true};
 	bool phase{false};
 	bool cool{false};
+	bool cold{false};
 
 //	float radian = 10 * 3.14 / 180;
 	uint32_t div_f = 1'800'000 / (qty_point);
@@ -191,17 +192,24 @@ if(motor == ASYNCHRON) {
 
 } else if (motor == SYNCHRON) {
 
-	adc.set_max_current(30);
-	adc.set_max_current_phase(30);
+	adc.set_max_current(35);
+	adc.set_max_current_phase(35);
 			unload = true;
 			if(service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
 				U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
-				min_ARR = ((div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
-				if(min_ARR < 357) min_ARR = 357;
+				min_ARR = ( (div_f / (U_phase_max)) * 43) / 55; // 70/53 = 280/212
+				if(min_ARR < 362) min_ARR = 362;
 			} else {
-				U_phase_max = 205;
-				min_ARR = 356;
+				U_phase_max = 215;
+				min_ARR = 362;
 			}
+			/*if (service.outData.convertor_temp <= -18) {
+				min_ARR = 688;
+				U_phase_max = 115;
+				cold = true;
+			} else {
+				cold = false;
+			}*/
 }
 
 			enable = Start and not rerun.isCount() /*and not service.pressure_is_normal()*/
@@ -362,20 +370,23 @@ if(motor == ASYNCHRON) {
 
 //	service.outData.high_voltage = 550;
 
-				if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
+				if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540 and not cold) {
 					U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
 					min_ARR = ((div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
-					if(min_ARR < 357) min_ARR = 357;
-				} else {
-					min_ARR = 356;
-					U_phase_max = 205;
-				}
+					if(min_ARR < 362) min_ARR = 362;
+				} else if (not cold){
+					min_ARR = 362;
+					U_phase_max = 215;
+				} /*else if (cold) {
+					min_ARR = 688;
+					U_phase_max = 115;
+				}*/
 
 				U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 115) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
 				U_phase += (U_phase_max - U_phase) * 10 / 50;
 				Km = offset + Kp * (div_f / TIM3->ARR) / (service.outData.high_voltage);
 
-				if (TIM3->ARR <= (min_ARR + 10)) {
+				if (TIM3->ARR <= (min_ARR + 5)) {
 					unload = false;
 					error = 0;
 				}
@@ -440,7 +451,7 @@ if(motor == ASYNCHRON) {
 				if(TIM3->ARR > min_ARR) {
 					if(TIM3->ARR > 624) {
 						if(TIM3->ARR > 1500) {
-							TIM3->ARR -= 20;
+							TIM3->ARR -= 25;
 						} else {
 
 							TIM3->ARR -= 2;
