@@ -65,7 +65,7 @@ class ADC_ : TickSubscriber
 	void adc_interrupt() {
 		HAL_ADC_Stop_DMA (&hadc1);
 		new_hv = buffer[3];
-		if (abs(new_hv - h_voltage) > 150) {  // 250 ~= 96V
+		if (abs(new_hv - h_voltage) > 170) {  // 250 ~= 96V
 			error_HV = true;
 		}
 		h_voltage += (new_hv - h_voltage) * 10 / 30;

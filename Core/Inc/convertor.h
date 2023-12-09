@@ -119,7 +119,7 @@ public:
 			, Pin& led_red, Pin& led_green, Pin& ventilator, Pin& unload, Pin& condens, Pin& TD_DM, Pin& SP, Pin& Start, Pin& Motor)
 	: adc{adc}, service{service}, contactor{contactor}, period_callback{period_callback}, adc_comparator_callback{adc_comparator_callback}
 	, led_red{led_red}, led_green{led_green}, ventilator{ventilator}, unload{unload}, condens{condens}, TD_DM{TD_DM}, SP{SP}, Start{Start}, Motor{Motor}
-	{rerun.time_set = 0; timer_stop.time_set = 0; restart.time_set = 0;}
+	{rerun.time_set = 0; timer_stop.time_set = 0; restart.time_set = 0; stop();}
 
 	void operator() (){
 
@@ -241,7 +241,7 @@ if(motor == ASYNCHRON) {
 					pusk();
 					state = State::starting;
 				}
-			} else stop();
+			} /*else stop();*/
 
 			if (not Start) {
 //				U_stop = false;
@@ -372,7 +372,7 @@ if(motor == ASYNCHRON) {
 
 				if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540 and not cold) {
 					U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
-					min_ARR = ((div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
+					min_ARR = ((div_f / (U_phase_max)) * 43) / 50; // 70/53 = 280/212
 					if(min_ARR < 362) min_ARR = 362;
 				} else if (not cold){
 					min_ARR = 362;
@@ -451,7 +451,7 @@ if(motor == ASYNCHRON) {
 				if(TIM3->ARR > min_ARR) {
 					if(TIM3->ARR > 624) {
 						if(TIM3->ARR > 1500) {
-							TIM3->ARR -= 25;
+							TIM3->ARR -= 30;
 						} else {
 
 							TIM3->ARR -= 2;
@@ -488,7 +488,7 @@ if(motor == ASYNCHRON) {
 
 } else if(motor == SYNCHRON) {
 		frequency = 10;
-		Kp = 1150;
+		Kp = 1140;
 		time = 2;
 		offset = 25;
 } // else if(motor == SYNCHRON) {
@@ -559,7 +559,6 @@ if(motor == ASYNCHRON) {
 			if(timer_stop.done() and not Start) {
 				stop();
 				timer_stop.stop();
-
 			}
 
 			if(not contactor.is_on() /*or service.pressure_is_normal()*/
@@ -572,7 +571,7 @@ if(motor == ASYNCHRON) {
 
 		}
 
-		if (adc.is_error()) {
+		/*if (adc.is_error()) {
 			adc.reset_error();
 			if(error_F++ >= 2) {
 				phase = true;
@@ -580,11 +579,11 @@ if(motor == ASYNCHRON) {
 				error++;
 			}
 			led_red = true;
-			stop();
+			//stop();
 			service.outData.error.phase_break = true;
-			rerun.start(5000);
+			//rerun.start(5000);
 
-		}
+		}*/
 
 		if(adc.is_error_HV()) {
 			adc.reset_error_HV();

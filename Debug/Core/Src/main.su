@@ -42,7 +42,6 @@ adc.h:235:11:uint16_t ADC_::value(uint8_t)	16	static
 adc.h:246:11:uint16_t ADC_::current()	16	static
 adc.h:250:11:uint16_t ADC_::value_HV()	16	static
 adc.h:255:7:void ADC_::reset_measure()	16	static
-adc.h:256:7:bool ADC_::is_error()	16	static
 adc.h:257:7:void ADC_::reset_error()	16	static
 adc.h:258:7:bool ADC_::is_over_s()	16	static
 adc.h:259:7:void ADC_::reset_over_s()	16	static
@@ -84,8 +83,8 @@ convertor.h:124:7:void Convertor::operator()()	24	static
 convertor.h:481:7:void Convertor::pusk()	16	static
 convertor.h:520:7:void Convertor::stop()	16	static
 convertor.h:548:7:void Convertor::alarm()	16	static
-convertor.h:633:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
-convertor.h:640:6:void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef*)	16	static
+convertor.h:632:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
+convertor.h:639:6:void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef*)	16	static
 main.cpp:93:5:int main()	848	static
 main.cpp:179:6:void SystemClock_Config()	96	static
 main.cpp:225:13:void MX_ADC1_Init()	24	static
