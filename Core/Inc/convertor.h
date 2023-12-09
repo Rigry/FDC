@@ -197,7 +197,7 @@ if(motor == ASYNCHRON) {
 			unload = true;
 			if(service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
 				U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
-				min_ARR = ( (div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
+				min_ARR = ( (div_f / (U_phase_max)) * 43) / 55; // 70/53 = 280/212
 				if(min_ARR < 362) min_ARR = 362;
 			} else {
 				U_phase_max = 215;
@@ -372,7 +372,7 @@ if(motor == ASYNCHRON) {
 
 				if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540 and not cold) {
 					U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
-					min_ARR = ((div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
+					min_ARR = ((div_f / (U_phase_max)) * 43) / 55; // 70/53 = 280/212
 					if(min_ARR < 362) min_ARR = 362;
 				} else if (not cold){
 					min_ARR = 362;
