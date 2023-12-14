@@ -164,7 +164,7 @@ public:
 
 if(motor == ASYNCHRON) {
 
-
+	/*
 	adc.set_max_current(35);
 	adc.set_max_current_phase(36);
 	if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
@@ -175,20 +175,20 @@ if(motor == ASYNCHRON) {
 		min_ARR = 1100;
 	}
 
-	/*
+*/
 
 	adc.set_max_current(20);
 	adc.set_max_current_phase(22);
-			unload = false;
-			if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
-				U_phase_max = ((((service.outData.high_voltage / 20) * 990) / 141) * 115) / 100;
-				min_ARR = (div_f / ((U_phase_max) * 5)) * 22; // 5/22 = 50/220
-				if(min_ARR < 2001) min_ARR = 2001;
-			} else {
-				U_phase_max = 220;
-				min_ARR = 2000;
-			}
-*/
+	unload = false;
+	if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
+		U_phase_max = ((((service.outData.high_voltage / 20) * 990) / 141) * 115) / 100;
+		min_ARR = (div_f / ((U_phase_max) * 5)) * 22; // 5/22 = 50/220
+		if(min_ARR <= 2081) min_ARR = 2081;
+	} else {
+		U_phase_max = 220;
+		min_ARR = 2080;
+	}
+
 
 } else if (motor == SYNCHRON) {
 
@@ -203,13 +203,7 @@ if(motor == ASYNCHRON) {
 				U_phase_max = 215;
 				min_ARR = 362;
 			}
-			/*if (service.outData.convertor_temp <= -18) {
-				min_ARR = 688;
-				U_phase_max = 115;
-				cold = true;
-			} else {
-				cold = false;
-			}*/
+
 }
 
 			enable = Start and not rerun.isCount() /*and not service.pressure_is_normal()*/
@@ -241,7 +235,7 @@ if(motor == ASYNCHRON) {
 					pusk();
 					state = State::starting;
 				}
-			} /*else stop();*/
+			} else stop();
 
 			if (not Start) {
 //				U_stop = false;
@@ -262,7 +256,9 @@ if(motor == ASYNCHRON) {
 
 if(motor == ASYNCHRON) {
 
+/////////////////CONDITIONER\\\\\\\\\\\\\\\
 
+	/*
 	if (service.outData.high_voltage > 400 and service.outData.high_voltage < 540) {
 		U_phase_max = ((((service.outData.high_voltage / 20) * 990) / 141) * 115) / 100;
 		min_ARR = (div_f / ((U_phase_max) * 9)) * 22; // 5/22 = 50/220
@@ -310,61 +306,60 @@ if(motor == ASYNCHRON) {
 			}
 		}
 	}
-
-
-
-
-/*
-			if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
-				U_phase_max = ((((service.outData.high_voltage / 20) * 990) / 141) * 115) / 100;
-				min_ARR = (div_f / ((U_phase_max) * 5)) * 22; // 5/22 = 50/220
-				if(min_ARR < 2001) min_ARR = 2001;
-			} else {
-				U_phase_max = 220;
-				min_ARR = 2000;
-			}
-
-			U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 112) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
-			Km = offset + ( (Kp * (div_f / TIM3->ARR) / service.outData.high_voltage ) * 4 )/ 3;
-
-			if (TIM3->ARR <= (min_ARR + 10)) {
-				unload = true;
-				error = 0;
-			}
-
-			if (Kp > 12000) {
-				Kp = 12000;
-			}
-
-			if (TIM3->ARR <= min_ARR) {
-				if (U_phase - U_phase_max > 10) {
-					Kp--;
-				} else {
-					if(adc.current() < 120 and (U_phase_max - U_phase > 10))
-					Kp++;
-				}
-
-				if (adc.current() > 160) {
-					if (Kp > 5000) {
-						Kp -= 4;
-					}
-				}
-			}
-
-			if (adc.current() < 35) {
-				if (Kp < 12000) {
-					Kp++;
-				}
-			}
-
-			if (TIM3->ARR > (min_ARR + 5)) {
-				if (adc.current() > 75) {
-					if (Kp >= 6000) {
-						Kp--;
-					}
-				}
-			}
 */
+/////////////////CONDITIONER\\\\\\\\\\\\\
+
+
+	if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
+		U_phase_max = ((((service.outData.high_voltage / 20) * 990) / 141) * 115) / 100;
+		min_ARR = (div_f / ((U_phase_max) * 5)) * 22; // 5/22 = 50/220
+		if(min_ARR <= 2081) min_ARR = 2081;
+	} else {
+		U_phase_max = 220;
+		min_ARR = 2080;
+	}
+
+	U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 112) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
+	Km = offset + ( (Kp * (div_f / TIM3->ARR) / service.outData.high_voltage ) * 4 )/ 3;
+
+	if (TIM3->ARR <= (min_ARR + 5)) {
+		unload = true;
+		error = 0;
+	}
+
+	if (Kp > 12000) {
+		Kp = 12000;
+	}
+
+	if (TIM3->ARR <= min_ARR) {
+		if (U_phase - U_phase_max > 10) {
+			Kp--;
+		} else {
+			if(adc.current() < 120 and (U_phase_max - U_phase > 10))
+			Kp++;
+		}
+
+		if (adc.current() > 160) {
+			if (Kp > 5000) {
+				Kp -= 4;
+			}
+		}
+	}
+
+	if (adc.current() < 35) {
+		if (Kp < 12000) {
+			Kp++;
+		}
+	}
+
+	if (TIM3->ARR > (min_ARR + 5)) {
+		if (adc.current() > 75) {
+			if (Kp >= 6000) {
+				Kp--;
+			}
+		}
+	}
+
 
 } else if(motor == SYNCHRON) {
 
@@ -438,9 +433,9 @@ if(motor == ASYNCHRON) {
 
 	if (TIM3->ARR != min_ARR) {
 		if (TIM3->ARR > 6000) {
-			TIM3->ARR -= 10;
+			TIM3->ARR -= 25;
 		} else if (TIM3->ARR > min_ARR) {
-			TIM3->ARR -= 4;
+			TIM3->ARR -= 5;
 		} else {
 			TIM3->ARR++;
 		}
