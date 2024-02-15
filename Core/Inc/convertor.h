@@ -119,7 +119,7 @@ public:
 			, Pin& led_red, Pin& led_green, Pin& ventilator, Pin& unload, Pin& condens, Pin& TD_DM, Pin& SP, Pin& Start, Pin& Motor)
 	: adc{adc}, service{service}, contactor{contactor}, period_callback{period_callback}, adc_comparator_callback{adc_comparator_callback}
 	, led_red{led_red}, led_green{led_green}, ventilator{ventilator}, unload{unload}, condens{condens}, TD_DM{TD_DM}, SP{SP}, Start{Start}, Motor{Motor}
-	{rerun.time_set = 0; timer_stop.time_set = 0; restart.time_set = 0; stop();}
+	{rerun.time_set = 0; timer_stop.time_set = 0; restart.time_set = 0; stop(); motor = Motor;}
 
 	void operator() (){
 
@@ -192,12 +192,12 @@ if(motor == ASYNCHRON) {
 
 } else if (motor == SYNCHRON) {
 
-	adc.set_max_current(35);
-	adc.set_max_current_phase(35);
+	adc.set_max_current(25);
+	adc.set_max_current_phase(27);
 			unload = true;
 			if(service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
 				U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
-				min_ARR = ( (div_f / (U_phase_max)) * 43) / 55; // 70/53 = 280/212
+				min_ARR = ( (div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
 				if(min_ARR < 362) min_ARR = 362;
 			} else {
 				U_phase_max = 215;
@@ -367,7 +367,7 @@ if(motor == ASYNCHRON) {
 
 				if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540 and not cold) {
 					U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
-					min_ARR = ((div_f / (U_phase_max)) * 43) / 55; // 70/53 = 280/212
+					min_ARR = ((div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
 					if(min_ARR < 362) min_ARR = 362;
 				} else if (not cold){
 					min_ARR = 362;
@@ -515,8 +515,8 @@ if(motor == ASYNCHRON) {
 	void stop() {
 
 		TIM1->CCR1 = 0;
-		TIM1->CCR1 = 0;
-		TIM1->CCR1 = 0;
+		TIM1->CCR2 = 0;
+		TIM1->CCR3 = 0;
 		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
 		HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_1);
 		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
