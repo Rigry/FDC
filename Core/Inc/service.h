@@ -187,18 +187,18 @@ public:
 		}
 //		outData.max_hv         = outData.max_hv < outData.high_voltage ? outData.high_voltage : outData.max_hv;
 
-		if(outData.pressure >= 360) {
-			if(press_delay.isCount()) {
-				if(press_delay.done()) {
-					done = true;
-				}
-			} else
-				press_delay.start(1000);
-		} else {
-			press_delay.stop();
-		}
+//		if(outData.pressure >= 360) {
+//			if(press_delay.isCount()) {
+//				if(press_delay.done()) {
+//					done = true;
+//				}
+//			} else
+//				press_delay.start(1000);
+//		} else {
+//			press_delay.stop();
+//		}
 
-		if(outData.pressure < 280) done = false;
+//		if(outData.pressure < 280) done = false;
 
 		kolhoz ^= timer.event();
 
@@ -233,7 +233,7 @@ public:
 		}
 	}
 
-	bool pressure_is_normal() {return done;}
+//	bool pressure_is_normal() {return done;}
 
 };
 

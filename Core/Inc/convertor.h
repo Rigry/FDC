@@ -30,6 +30,7 @@ class Convertor {
 	Timer rerun;
 	Timer timer_stop;
 	Timer restart;
+	Timer test;
 
 	uint16_t sin_table[qty_point]{3600, 5514, 6764
 								, 7199, 6764, 6764
@@ -119,7 +120,7 @@ public:
 			, Pin& led_red, Pin& led_green, Pin& ventilator, Pin& unload, Pin& condens, Pin& TD_DM, Pin& SP, Pin& Start, Pin& Motor)
 	: adc{adc}, service{service}, contactor{contactor}, period_callback{period_callback}, adc_comparator_callback{adc_comparator_callback}
 	, led_red{led_red}, led_green{led_green}, ventilator{ventilator}, unload{unload}, condens{condens}, TD_DM{TD_DM}, SP{SP}, Start{Start}, Motor{Motor}
-	{rerun.time_set = 0; timer_stop.time_set = 0; restart.time_set = 0; stop(); motor = Motor;}
+	{rerun.time_set = 0; timer_stop.time_set = 0; restart.time_set = 0; /*stop();*/ motor = Motor;}
 
 	void operator() (){
 
@@ -185,15 +186,17 @@ if(motor == ASYNCHRON) {
 		min_ARR = (div_f / ((U_phase_max) * 5)) * 22; // 5/22 = 50/220
 		if(min_ARR <= 2081) min_ARR = 2081;
 	} else {
-		U_phase_max = 220;
-		min_ARR = 2080;
+//		U_phase_max = 220;
+//		min_ARR = 2080;
+		U_phase_max = 88;
+		min_ARR = 4999;
 	}
 
 
 } else if (motor == SYNCHRON) {
 
-	adc.set_max_current(25);
-	adc.set_max_current_phase(27);
+	adc.set_max_current(22);
+	adc.set_max_current_phase(24);
 			unload = true;
 			if(service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
 				U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
@@ -211,16 +214,12 @@ if(motor == ASYNCHRON) {
 					 /*and not service.outData.error.HV */and not service.outData.error.HV_low
 					 and not service.outData.error.voltage_board_low and (error < 3) and not U_stop /* and not service.outData.error.contactor*/;
 
-//			if (not enable and contactor.is_on()) {
-//				service.outData.error.contactor = true;
-//			} else {
-//				service.outData.error.contactor = false;
-//			}
-
 			if(rerun.done()) rerun.stop();
 
+//			if(test.done()) test.stop();
+
 			if(error >= 3 and not restart.isCount()) {
-				restart.start(10'000);
+				restart.start(5'000);
 			}
 
 			if(error >= 3 and restart.done()) {
@@ -235,7 +234,8 @@ if(motor == ASYNCHRON) {
 					pusk();
 					state = State::starting;
 				}
-			} else stop();
+			}
+//			else stop();
 
 			if (not Start) {
 //				U_stop = false;
@@ -315,8 +315,10 @@ if(motor == ASYNCHRON) {
 		min_ARR = (div_f / ((U_phase_max) * 5)) * 22; // 5/22 = 50/220
 		if(min_ARR <= 2081) min_ARR = 2081;
 	} else {
-		U_phase_max = 220;
-		min_ARR = 2080;
+//		U_phase_max = 220;
+//		min_ARR = 2080;
+		U_phase_max = 88;
+		min_ARR = 4999;
 	}
 
 	U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 112) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
@@ -372,10 +374,7 @@ if(motor == ASYNCHRON) {
 				} else if (not cold){
 					min_ARR = 362;
 					U_phase_max = 215;
-				} /*else if (cold) {
-					min_ARR = 688;
-					U_phase_max = 115;
-				}*/
+				}
 
 				U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 115) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
 				U_phase += (U_phase_max - U_phase) * 10 / 50;
@@ -485,7 +484,7 @@ if(motor == ASYNCHRON) {
 		frequency = 10;
 		Kp = 1140;
 		time = 2;
-		offset = 30;
+		offset = 38;
 } // else if(motor == SYNCHRON) {
 
 		Km = 5;
@@ -531,11 +530,7 @@ if(motor == ASYNCHRON) {
 		k = 0;
 		m = 6;
 		n = 12;
-
-//		TIM3->ARR = (div_f / (frequency)) * 10 - 1;
-
 		state = State::wait;
-
 		adc.measure_offset();
 
 	}
@@ -546,7 +541,6 @@ if(motor == ASYNCHRON) {
 				     or service.outData.error.HV_low /*or service.outData.error.HV*/ or service.outData.error.voltage_board_low
 					 )
 		{
-//			if(service.pressure_is_normal()) error = 0;
 			if(not Start and not timer_stop.isCount()) {
 				timer_stop.start(1000);
 			}
@@ -565,8 +559,9 @@ if(motor == ASYNCHRON) {
 			}
 
 		}
-
-		/*if (adc.is_error()) {
+if(motor == SYNCHRON) {
+	if (TIM3->ARR >= (min_ARR + 5)) {
+		if (adc.is_error()) {
 			adc.reset_error();
 			if(error_F++ >= 2) {
 				phase = true;
@@ -574,11 +569,12 @@ if(motor == ASYNCHRON) {
 				error++;
 			}
 			led_red = true;
-			//stop();
+			stop();
 			service.outData.error.phase_break = true;
-			//rerun.start(5000);
-
-		}*/
+			rerun.start(5000);
+		}
+		}
+	}
 
 		if(adc.is_error_HV()) {
 			adc.reset_error_HV();
