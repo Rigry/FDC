@@ -5102,13 +5102,13 @@ if(motor == ASYNCHRON) {
  8002c5e:	f640 0221 	movw	r2, #2081	; 0x821
  8002c62:	f8a3 20d0 	strh.w	r2, [r3, #208]	; 0xd0
  8002c66:	e080      	b.n	8002d6a <_ZN9ConvertorclEv+0x432>
-		U_phase_max = 88;
+		U_phase_max = 220;
  8002c68:	687b      	ldr	r3, [r7, #4]
- 8002c6a:	2258      	movs	r2, #88	; 0x58
+ 8002c6a:	22dc      	movs	r2, #220	; 0xdc
  8002c6c:	f8a3 20c8 	strh.w	r2, [r3, #200]	; 0xc8
-		min_ARR = 4999;
+		min_ARR = 2080;
  8002c70:	687b      	ldr	r3, [r7, #4]
- 8002c72:	f241 3287 	movw	r2, #4999	; 0x1387
+ 8002c72:	f44f 6202 	mov.w	r2, #2080	; 0x820
  8002c76:	f8a3 20d0 	strh.w	r2, [r3, #208]	; 0xd0
  8002c7a:	e076      	b.n	8002d6a <_ZN9ConvertorclEv+0x432>
  8002c7c:	40000400 	.word	0x40000400
@@ -5508,13 +5508,13 @@ if(motor == ASYNCHRON) {
  8003004:	f640 0221 	movw	r2, #2081	; 0x821
  8003008:	f8a3 20d0 	strh.w	r2, [r3, #208]	; 0xd0
  800300c:	e008      	b.n	8003020 <_ZN9ConvertorclEv+0x6e8>
-		U_phase_max = 88;
+		U_phase_max = 220;
  800300e:	687b      	ldr	r3, [r7, #4]
- 8003010:	2258      	movs	r2, #88	; 0x58
+ 8003010:	22dc      	movs	r2, #220	; 0xdc
  8003012:	f8a3 20c8 	strh.w	r2, [r3, #200]	; 0xc8
-		min_ARR = 4999;
+		min_ARR = 2080;
  8003016:	687b      	ldr	r3, [r7, #4]
- 8003018:	f241 3287 	movw	r2, #4999	; 0x1387
+ 8003018:	f44f 6202 	mov.w	r2, #2080	; 0x820
  800301c:	f8a3 20d0 	strh.w	r2, [r3, #208]	; 0xd0
 	U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 112) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
  8003020:	687b      	ldr	r3, [r7, #4]

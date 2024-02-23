@@ -81,11 +81,11 @@ convertor.h:97:7:void Convertor::period_interrupt()	16	static
 convertor.h:113:7:void Convertor::comparator_interrupt()	16	static
 convertor.h:119:2:Convertor::Convertor(ADC_&, Service<In_data, Out_data>&, Contactor&, Interrupt&, Interrupt&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	32	static
 convertor.h:125:7:void Convertor::operator()()	24	static
-convertor.h:475:7:void Convertor::pusk()	16	static
-convertor.h:514:7:void Convertor::stop()	16	static
-convertor.h:538:7:void Convertor::alarm()	16	static
-convertor.h:623:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
-convertor.h:630:6:void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef*)	16	static
+convertor.h:471:7:void Convertor::pusk()	16	static
+convertor.h:510:7:void Convertor::stop()	16	static
+convertor.h:534:7:void Convertor::alarm()	16	static
+convertor.h:619:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
+convertor.h:626:6:void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef*)	16	static
 main.cpp:93:5:int main()	864	static
 main.cpp:179:6:void SystemClock_Config()	96	static
 main.cpp:225:13:void MX_ADC1_Init()	24	static

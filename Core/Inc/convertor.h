@@ -186,10 +186,8 @@ if(motor == ASYNCHRON) {
 		min_ARR = (div_f / ((U_phase_max) * 5)) * 22; // 5/22 = 50/220
 		if(min_ARR <= 2081) min_ARR = 2081;
 	} else {
-//		U_phase_max = 220;
-//		min_ARR = 2080;
-		U_phase_max = 88;
-		min_ARR = 4999;
+		U_phase_max = 220;
+		min_ARR = 2080;
 	}
 
 
@@ -315,10 +313,8 @@ if(motor == ASYNCHRON) {
 		min_ARR = (div_f / ((U_phase_max) * 5)) * 22; // 5/22 = 50/220
 		if(min_ARR <= 2081) min_ARR = 2081;
 	} else {
-//		U_phase_max = 220;
-//		min_ARR = 2080;
-		U_phase_max = 88;
-		min_ARR = 4999;
+		U_phase_max = 220;
+		min_ARR = 2080;
 	}
 
 	U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 112) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
