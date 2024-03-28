@@ -57,6 +57,9 @@ class ADC_ : TickSubscriber
 
 	uint16_t max_current{20};
 	uint8_t over_current_s{0};
+	uint8_t over_cur_phase{0};
+
+	bool second_half {false};
 
 	uint16_t max_current_phase{20};
 	uint8_t over_current_a{0};
@@ -150,14 +153,23 @@ class ADC_ : TickSubscriber
 
 			if (arr_A[j] / 21 >= max_current_phase and Km_check) {
 				over_current_a++;
-				if (over_current_a >= 4)
-					over_cur_a = true;
+				if (over_current_a >= 3) {
+					over_cur_phase++;
+					over_current_a = 0;
+					if(over_cur_phase >= 2) {
+						over_cur_a = true;
+					}
+				}
 			}
 
 			if (arr_C[j] / 21 >= max_current_phase and Km_check) {
 				over_current_c++;
-				if (over_current_c >= 4)
-					over_cur_c = true;
+				if (over_current_c >= 3) {
+					over_cur_phase++;
+					over_current_c = 0;
+					if(over_cur_phase >= 2)
+						over_cur_c = true;
+				}
 			}
 
 			new_r = (std::sqrt( std::pow((a - b / 2 - c / 2), 2) + std::pow( (b * 17 / 20 - c * 17 / 20), 2) ) * 2) / 3;
@@ -174,6 +186,11 @@ class ADC_ : TickSubscriber
 			over_current_s = 0;
 			over_current_a = 0;
 			over_current_c = 0;
+			if(second_half) {
+				second_half = false;
+				over_cur_phase = 0;
+			} else
+				second_half = true;
 		}
 //		if(m < 15) m++;
 //		else m = 0;

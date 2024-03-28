@@ -27,37 +27,36 @@ timers.h:157:10:uint32_t Timer::timeLeft()	16	static
 timers.h:158:10:bool Timer::isGreater(uint32_t)	16	static
 interrupt.h:14:10:void Interrupt::subscribe(Interrupting*)	16	static
 interrupt.h:21:10:void Interrupt::interrupt()	16	static
-adc.h:65:7:void ADC_::adc_interrupt()	16	static
-adc.h:74:7:void ADC_::adc_injected_interrupt()	32	static
+adc.h:68:7:void ADC_::adc_interrupt()	16	static
+adc.h:77:7:void ADC_::adc_injected_interrupt()	32	static
 interrupt.h:3:8:constexpr Interrupting::Interrupting()	16	static
-adc.h:186:3:ADC_::ADC_interrupt::ADC_interrupt(ADC_::Parent&)	16	static
-adc.h:190:8:virtual void ADC_::ADC_interrupt::interrupt()	16	static
-adc.h:197:3:ADC_::ADC_INJ_interrupt::ADC_INJ_interrupt(ADC_::Parent&)	16	static
-adc.h:201:8:virtual void ADC_::ADC_INJ_interrupt::interrupt()	16	static
-adc.h:208:2:ADC_::ADC_(Interrupt&, Interrupt&, uint8_t, uint16_t)	24	static
-adc.h:223:7:void ADC_::measure_offset()	16	static
-adc.h:227:7:void ADC_::measure_value()	16	static
-adc.h:231:11:uint16_t ADC_::operator[](uint8_t)	16	static
-adc.h:235:11:uint16_t ADC_::value(uint8_t)	16	static
-adc.h:246:11:uint16_t ADC_::current()	16	static
-adc.h:250:11:uint16_t ADC_::value_HV()	16	static
-adc.h:255:7:void ADC_::reset_measure()	16	static
-adc.h:256:7:bool ADC_::is_error()	16	static
-adc.h:257:7:void ADC_::reset_error()	16	static
-adc.h:258:7:bool ADC_::is_over_s()	16	static
-adc.h:259:7:void ADC_::reset_over_s()	16	static
-adc.h:260:7:bool ADC_::is_over_a()	16	static
-adc.h:261:7:void ADC_::reset_over_a()	16	static
-adc.h:262:7:bool ADC_::is_over_c()	16	static
-adc.h:263:7:void ADC_::reset_over_c()	16	static
-adc.h:264:7:bool ADC_::is_error_HV()	16	static
-adc.h:265:7:void ADC_::reset_error_HV()	16	static
-adc.h:266:7:void ADC_::what_Km(uint16_t)	16	static
-adc.h:268:7:virtual void ADC_::notify()	16	static
-adc.h:277:7:void ADC_::set_max_current(uint16_t)	16	static
-adc.h:281:7:void ADC_::set_max_current_phase(uint16_t)	16	static
-adc.h:291:6:void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef*)	16	static
-adc.h:298:6:void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef*)	16	static
+adc.h:203:3:ADC_::ADC_interrupt::ADC_interrupt(ADC_::Parent&)	16	static
+adc.h:207:8:virtual void ADC_::ADC_interrupt::interrupt()	16	static
+adc.h:214:3:ADC_::ADC_INJ_interrupt::ADC_INJ_interrupt(ADC_::Parent&)	16	static
+adc.h:218:8:virtual void ADC_::ADC_INJ_interrupt::interrupt()	16	static
+adc.h:225:2:ADC_::ADC_(Interrupt&, Interrupt&, uint8_t, uint16_t)	24	static
+adc.h:240:7:void ADC_::measure_offset()	16	static
+adc.h:244:7:void ADC_::measure_value()	16	static
+adc.h:248:11:uint16_t ADC_::operator[](uint8_t)	16	static
+adc.h:252:11:uint16_t ADC_::value(uint8_t)	16	static
+adc.h:263:11:uint16_t ADC_::current()	16	static
+adc.h:267:11:uint16_t ADC_::value_HV()	16	static
+adc.h:272:7:void ADC_::reset_measure()	16	static
+adc.h:274:7:void ADC_::reset_error()	16	static
+adc.h:275:7:bool ADC_::is_over_s()	16	static
+adc.h:276:7:void ADC_::reset_over_s()	16	static
+adc.h:277:7:bool ADC_::is_over_a()	16	static
+adc.h:278:7:void ADC_::reset_over_a()	16	static
+adc.h:279:7:bool ADC_::is_over_c()	16	static
+adc.h:280:7:void ADC_::reset_over_c()	16	static
+adc.h:281:7:bool ADC_::is_error_HV()	16	static
+adc.h:282:7:void ADC_::reset_error_HV()	16	static
+adc.h:283:7:void ADC_::what_Km(uint16_t)	16	static
+adc.h:285:7:virtual void ADC_::notify()	16	static
+adc.h:294:7:void ADC_::set_max_current(uint16_t)	16	static
+adc.h:298:7:void ADC_::set_max_current_phase(uint16_t)	16	static
+adc.h:308:6:void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef*)	16	static
+adc.h:315:6:void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef*)	16	static
 pin.h:9:2:Pin::Pin(GPIO_TypeDef*, uint16_t)	24	static
 pin.h:16:9:void Pin::set()	16	static
 pin.h:17:9:void Pin::clear()	16	static
@@ -84,8 +83,8 @@ convertor.h:125:7:void Convertor::operator()()	24	static
 convertor.h:471:7:void Convertor::pusk()	16	static
 convertor.h:510:7:void Convertor::stop()	16	static
 convertor.h:534:7:void Convertor::alarm()	16	static
-convertor.h:619:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
-convertor.h:626:6:void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef*)	16	static
+convertor.h:621:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
+convertor.h:628:6:void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef*)	16	static
 main.cpp:93:5:int main()	864	static
 main.cpp:179:6:void SystemClock_Config()	96	static
 main.cpp:225:13:void MX_ADC1_Init()	24	static

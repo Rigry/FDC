@@ -179,7 +179,7 @@ if(motor == ASYNCHRON) {
 */
 
 	adc.set_max_current(20);
-	adc.set_max_current_phase(22);
+	adc.set_max_current_phase(24);
 	unload = false;
 	if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
 		U_phase_max = ((((service.outData.high_voltage / 20) * 990) / 141) * 115) / 100;
@@ -193,15 +193,15 @@ if(motor == ASYNCHRON) {
 
 } else if (motor == SYNCHRON) {
 
-	adc.set_max_current(22);
-	adc.set_max_current_phase(24);
+	adc.set_max_current(14);
+	adc.set_max_current_phase(28);
 			unload = true;
 			if(service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
 				U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
 				min_ARR = ( (div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
 				if(min_ARR < 362) min_ARR = 362;
 			} else {
-				U_phase_max = 215;
+				U_phase_max = 212;
 				min_ARR = 362;
 			}
 
@@ -369,7 +369,7 @@ if(motor == ASYNCHRON) {
 					if(min_ARR < 362) min_ARR = 362;
 				} else if (not cold){
 					min_ARR = 362;
-					U_phase_max = 215;
+					U_phase_max = 212;
 				}
 
 				U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 115) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
@@ -555,22 +555,24 @@ if(motor == ASYNCHRON) {
 			}
 
 		}
-if(motor == SYNCHRON) {
-	if (TIM3->ARR >= (min_ARR + 5)) {
-		if (adc.is_error()) {
-			adc.reset_error();
-			if(error_F++ >= 2) {
-				phase = true;
-				error_F = 0;
-				error++;
-			}
-			led_red = true;
-			stop();
-			service.outData.error.phase_break = true;
-			rerun.start(5000);
-		}
-		}
-	}
+//if(motor == SYNCHRON) {
+//
+//	if (TIM3->ARR >= (min_ARR + 5)) {
+//		if (adc.is_error()) {
+//			adc.reset_error();
+//			if(error_F++ >= 2) {
+//				phase = true;
+//				error_F = 0;
+//				error++;
+//			}
+//			led_red = true;
+//			stop();
+//			service.outData.error.phase_break = true;
+//			rerun.start(5000);
+//		}
+//	}
+//
+//}
 
 		if(adc.is_error_HV()) {
 			adc.reset_error_HV();
