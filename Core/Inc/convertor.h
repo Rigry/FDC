@@ -193,7 +193,7 @@ if(motor == ASYNCHRON) {
 
 } else if (motor == SYNCHRON) {
 
-	adc.set_max_current(14);
+	adc.set_max_current(18);
 	adc.set_max_current_phase(28);
 			unload = true;
 			if(service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
@@ -551,7 +551,7 @@ if(motor == ASYNCHRON) {
 				     or service.outData.error.HV_low /*or service.outData.error.HV*/ or service.outData.error.voltage_board_low) {
 				stop();
 				timer_stop.stop();
-
+//				rerun.start(5000);
 			}
 
 		}

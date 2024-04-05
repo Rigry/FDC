@@ -5169,10 +5169,10 @@ if(motor == ASYNCHRON) {
  8002cf2:	f893 30c7 	ldrb.w	r3, [r3, #199]	; 0xc7
  8002cf6:	2b00      	cmp	r3, #0
  8002cf8:	d169      	bne.n	8002dce <_ZN9ConvertorclEv+0x432>
-	adc.set_max_current(14);
+	adc.set_max_current(18);
  8002cfa:	687b      	ldr	r3, [r7, #4]
  8002cfc:	685b      	ldr	r3, [r3, #4]
- 8002cfe:	210e      	movs	r1, #14
+ 8002cfe:	2112      	movs	r1, #18
  8002d00:	4618      	mov	r0, r3
  8002d02:	f7ff fa45 	bl	8002190 <_ZN4ADC_15set_max_currentEt>
 	adc.set_max_current_phase(28);
@@ -7149,7 +7149,7 @@ int main(void)
 
   decltype(auto) led_red    = Pin{GPIOB, LED_RED_Pin  };
  8003d50:	f507 7346 	add.w	r3, r7, #792	; 0x318
- 8003d54:	2201      	movs	r2, #1
+ 8003d54:	2220      	movs	r2, #32
  8003d56:	4951      	ldr	r1, [pc, #324]	; (8003e9c <main+0x17c>)
  8003d58:	4618      	mov	r0, r3
  8003d5a:	f7fe fa5f 	bl	800221c <_ZN3PinC1EP12GPIO_TypeDeft>
@@ -8550,7 +8550,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, LED_RED_Pin|LED_CAN_Pin|CONDENS_Pin, GPIO_PIN_RESET);
  8004620:	2200      	movs	r2, #0
- 8004622:	f241 2101 	movw	r1, #4609	; 0x1201
+ 8004622:	f44f 5191 	mov.w	r1, #4640	; 0x1220
  8004626:	4832      	ldr	r0, [pc, #200]	; (80046f0 <_ZL12MX_GPIO_Initv+0x144>)
  8004628:	f002 ffdf 	bl	80075ea <HAL_GPIO_WritePin>
 
@@ -8570,7 +8570,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : LED_RED_Pin LED_CAN_Pin CONDENS_Pin */
   GPIO_InitStruct.Pin = LED_RED_Pin|LED_CAN_Pin|CONDENS_Pin;
- 8004642:	f241 2301 	movw	r3, #4609	; 0x1201
+ 8004642:	f44f 5391 	mov.w	r3, #4640	; 0x1220
  8004646:	613b      	str	r3, [r7, #16]
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
  8004648:	2301      	movs	r3, #1
