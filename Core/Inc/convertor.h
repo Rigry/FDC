@@ -132,7 +132,7 @@ public:
 		service.outData.U_phase = U_phase;
 		service.outData.error.overheat_c = not bool(TD_DM);
 		service.outData.error.HV_low = /*(service.outData.high_voltage <= 300) or*/ U_stop;
-		service.outData.error.voltage_board_low = (service.outData.voltage_board <= 18);
+		service.outData.error.voltage_board_low = (service.outData.voltage_board <= 180);
 //		service.outData.error.voltage_board_low = false;
 //		service.outData.error.HV = adc.is_error_HV();//service.outData.high_voltage >= 850;
 		service.outData.max_current_A = min_ARR;
@@ -551,7 +551,7 @@ if(motor == ASYNCHRON) {
 				     or service.outData.error.HV_low /*or service.outData.error.HV*/ or service.outData.error.voltage_board_low) {
 				stop();
 				timer_stop.stop();
-//				rerun.start(5000);
+				rerun.start(5000);
 			}
 
 		}
