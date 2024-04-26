@@ -125,7 +125,7 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
-  decltype(auto) led_red    = Pin{GPIOB, LED_RED_Pin  };
+  decltype(auto) led_red    = Pin{GPIOC, LED_RED_Pin  };
   decltype(auto) led_green  = Pin{GPIOB, LED_GREEN_Pin};
   decltype(auto) led_can    = Pin{GPIOC, LED_CAN_Pin  };
   decltype(auto) ventilator = Pin{GPIOB, VENT_Pin     };

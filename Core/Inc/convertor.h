@@ -29,8 +29,7 @@ class Convertor {
 	Timer timer;
 	Timer rerun;
 	Timer timer_stop;
-	Timer restart;
-	Timer test;
+	Timer clump_timer;
 
 	uint16_t sin_table[qty_point]{3600, 5514, 6764
 								, 7199, 6764, 6764
@@ -104,8 +103,6 @@ class Convertor {
 		if (m >= qty_point) {m = 0;}
 		if (n >= qty_point) {n = 0;}
 
-//		TIM3->ARR = (div_f / (frequency)) * 10 - 1;
-
 		HAL_ADCEx_InjectedStart_IT(&hadc2);
 
 	}
@@ -120,7 +117,13 @@ public:
 			, Pin& led_red, Pin& led_green, Pin& ventilator, Pin& unload, Pin& condens, Pin& TD_DM, Pin& SP, Pin& Start, Pin& Motor)
 	: adc{adc}, service{service}, contactor{contactor}, period_callback{period_callback}, adc_comparator_callback{adc_comparator_callback}
 	, led_red{led_red}, led_green{led_green}, ventilator{ventilator}, unload{unload}, condens{condens}, TD_DM{TD_DM}, SP{SP}, Start{Start}, Motor{Motor}
-	{rerun.time_set = 0; timer_stop.time_set = 0; restart.time_set = 0; /*stop();*/ motor = Motor;}
+	{rerun.time_set = 0; timer_stop.time_set = 0; clump_timer.time_set = 0;
+		if(motor == SYNCHRON) {
+			unload = true;
+			clump_timer.start(3000);
+		}
+		motor = Motor;
+	}
 
 	void operator() (){
 
@@ -131,31 +134,32 @@ public:
 		service.outData.error.on = Start;
 		service.outData.U_phase = U_phase;
 		service.outData.error.overheat_c = not bool(TD_DM);
-		service.outData.error.HV_low = /*(service.outData.high_voltage <= 300) or*/ U_stop;
-		service.outData.error.voltage_board_low = (service.outData.voltage_board <= 180);
-//		service.outData.error.voltage_board_low = false;
-//		service.outData.error.HV = adc.is_error_HV();//service.outData.high_voltage >= 850;
+		service.outData.error.HV_low = U_stop;
+		service.outData.error.voltage_board_low = (service.outData.voltage_board < 180);
+		service.outData.error.voltage_board_high = (service.outData.voltage_board > 300);
+
 		service.outData.max_current_A = min_ARR;
 		service.outData.max_current_C = U_phase_max;
-
-		service.outData.voltage_board = Kp;
+		service.outData.current_C = Kp;
 		service.outData.max_current = TIM3->ARR;
 
 		if(service.outData.high_voltage <= 300) U_stop = true;
-		else if(service.outData.high_voltage > 300) {U_stop = false; adc.reset_error_HV();}
+		else if(service.outData.high_voltage > 310) {U_stop = false; adc.reset_error_HV();}
 
 		if (service.outData.error.overheat_fc |= service.outData.convertor_temp >= 60) {
 			service.outData.error.overheat_fc = service.outData.convertor_temp >= 50;
 		}
 
-		if (cool |= service.outData.convertor_temp >= 40) {
-			cool = service.outData.convertor_temp >= 30;
-		}
-
-		if(enable)
-			ventilator = cool;
-		else
-			ventilator = false;
+/////////////////CONDITIONER
+//		if (cool |= service.outData.convertor_temp >= 40) {
+//			cool = service.outData.convertor_temp >= 30;
+//		}
+//
+//		if(enable)
+//			ventilator = cool;
+//		else
+//			ventilator = false;
+/////////////////CONDITIONER
 
 		if(contactor.is_on() and enable) alarm();
 
@@ -164,8 +168,8 @@ public:
 			motor = Motor;
 
 if(motor == ASYNCHRON) {
-
-	/*
+/////////////////CONDITIONER
+/*
 	adc.set_max_current(35);
 	adc.set_max_current_phase(36);
 	if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
@@ -175,9 +179,8 @@ if(motor == ASYNCHRON) {
 		U_phase_max = 220;
 		min_ARR = 1100;
 	}
-
 */
-
+/////////////////CONDITIONER
 	adc.set_max_current(20);
 	adc.set_max_current_phase(24);
 	unload = false;
@@ -195,35 +198,27 @@ if(motor == ASYNCHRON) {
 
 	adc.set_max_current(18);
 	adc.set_max_current_phase(28);
-			unload = true;
-			if(service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
-				U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
-				min_ARR = ( (div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
-				if(min_ARR < 362) min_ARR = 362;
-			} else {
-				U_phase_max = 212;
-				min_ARR = 362;
-			}
+	if(clump_timer.done()) {
+		clump_timer.stop(); unload = false;
+	}
+ 	if(service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
+		U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
+		min_ARR = ( (div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
+		if(min_ARR < 360) min_ARR = 360;
+	} else {
+		U_phase_max = 212;
+		min_ARR = 360;
+	}
 
 }
 
-			enable = Start and not rerun.isCount() /*and not service.pressure_is_normal()*/
+			enable = Start and not rerun.isCount()
 					 and not service.outData.error.overheat_fc and not service.outData.error.overheat_c
-					 /*and not service.outData.error.HV */and not service.outData.error.HV_low
-					 and not service.outData.error.voltage_board_low and (error < 3) and not U_stop /* and not service.outData.error.contactor*/;
+					 and not service.outData.error.HV_low
+					 and not service.outData.error.voltage_board_low and not service.outData.error.voltage_board_high
+					 and not U_stop;
 
 			if(rerun.done()) rerun.stop();
-
-//			if(test.done()) test.stop();
-
-			if(error >= 3 and not restart.isCount()) {
-				restart.start(5'000);
-			}
-
-			if(error >= 3 and restart.done()) {
-				restart.stop();
-				error = 0;
-			}
 
 			if (enable){
 				rerun.stop();
@@ -233,15 +228,10 @@ if(motor == ASYNCHRON) {
 					state = State::starting;
 				}
 			}
-//			else stop();
 
 			if (not Start) {
-//				U_stop = false;
 				rerun.stop();
 				rerun.time_set = 0;
-				restart.stop();
-				restart.time_set = 0;
-				error = 0;
 				led_red = false;
 				adc.reset_error();
 				phase = false;
@@ -254,7 +244,7 @@ if(motor == ASYNCHRON) {
 
 if(motor == ASYNCHRON) {
 
-/////////////////CONDITIONER\\\\\\\\\\\\\\\
+/////////////////CONDITIONER
 
 	/*
 	if (service.outData.high_voltage > 400 and service.outData.high_voltage < 540) {
@@ -305,7 +295,7 @@ if(motor == ASYNCHRON) {
 		}
 	}
 */
-/////////////////CONDITIONER\\\\\\\\\\\\\
+/////////////////CONDITIONER
 
 
 	if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
@@ -320,7 +310,7 @@ if(motor == ASYNCHRON) {
 	U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 112) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
 	Km = offset + ( (Kp * (div_f / TIM3->ARR) / service.outData.high_voltage ) * 4 )/ 3;
 
-	if (TIM3->ARR <= (min_ARR + 5)) {
+	if (TIM3->ARR <= uint32_t(min_ARR + 5)) {
 		unload = true;
 		error = 0;
 	}
@@ -350,7 +340,7 @@ if(motor == ASYNCHRON) {
 		}
 	}
 
-	if (TIM3->ARR > (min_ARR + 5)) {
+	if (TIM3->ARR > uint32_t(min_ARR + 5)) {
 		if (adc.current() > 75) {
 			if (Kp >= 6000) {
 				Kp--;
@@ -366,9 +356,9 @@ if(motor == ASYNCHRON) {
 				if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540 and not cold) {
 					U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
 					min_ARR = ((div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
-					if(min_ARR < 362) min_ARR = 362;
+					if(min_ARR < 360) min_ARR = 360;
 				} else if (not cold){
-					min_ARR = 362;
+					min_ARR = 360;
 					U_phase_max = 212;
 				}
 
@@ -376,7 +366,7 @@ if(motor == ASYNCHRON) {
 				U_phase += (U_phase_max - U_phase) * 10 / 50;
 				Km = offset + Kp * (div_f / TIM3->ARR) / (service.outData.high_voltage);
 
-				if (TIM3->ARR <= (min_ARR + 5)) {
+				if (TIM3->ARR <= uint32_t(min_ARR + 5)) {
 					unload = false;
 					error = 0;
 				}
@@ -384,10 +374,10 @@ if(motor == ASYNCHRON) {
 
 				if(TIM3->ARR <= min_ARR) {
 					if ((U_phase > U_phase_max)) {
-						if((U_phase - U_phase_max) > 10)
+						if((U_phase - U_phase_max) > 8)
 							Kp--;
 					} else {
-						if ((U_phase_max - U_phase > 10))
+						if ((U_phase_max - U_phase > 8))
 							Kp++;
 					}
 
@@ -402,7 +392,7 @@ if(motor == ASYNCHRON) {
 						Kp++;
 					}
 				}
-				if (TIM3->ARR > (min_ARR + 5)) {
+				if (TIM3->ARR > uint32_t(min_ARR + 5)) {
 					if (adc.current() > 110) {
 						if(Kp > 1250) {
 							Kp--;
@@ -470,19 +460,18 @@ if(motor == ASYNCHRON) {
 
 	void pusk() {
 
-if(motor == ASYNCHRON) {
-		frequency = 60;
-		Kp = 6000;
-		time = 3;
-		offset = 35;
+		if(motor == ASYNCHRON) {
+				frequency = 60;
+				Kp = 6000;
+				time = 3;
+				offset = 35;
 
-} else if(motor == SYNCHRON) {
-		frequency = 10;
-		Kp = 1140;
-		time = 2;
-		offset = 38;
-} // else if(motor == SYNCHRON) {
-
+		} else if(motor == SYNCHRON) {
+				frequency = 10;
+				Kp = 1140;
+				time = 2;
+				offset = 38;
+		}
 		Km = 5;
 		TIM3->ARR = (div_f / (frequency)) * 10 - 1;
 
@@ -505,6 +494,8 @@ if(motor == ASYNCHRON) {
 		service.outData.error.HV = false;
 
 		led_red = false;
+		if(motor == SYNCHRON)
+			unload = true;
 	}
 
 	void stop() {
@@ -532,10 +523,10 @@ if(motor == ASYNCHRON) {
 	}
 
 	void alarm() {
-		if((not Start or timer_stop.done()) or not contactor.is_on() /*or service.pressure_is_normal()*/
-				     or service.outData.error.overheat_fc or service.outData.error.overheat_c
-				     or service.outData.error.HV_low /*or service.outData.error.HV*/ or service.outData.error.voltage_board_low
-					 )
+		if((not Start or timer_stop.done()) or not contactor.is_on()
+				      or service.outData.error.overheat_fc or service.outData.error.overheat_c or service.outData.error.HV_low
+					  or service.outData.error.voltage_board_low or service.outData.error.voltage_board_high
+		  )
 		{
 			if(not Start and not timer_stop.isCount()) {
 				timer_stop.start(1000);
@@ -544,14 +535,23 @@ if(motor == ASYNCHRON) {
 			if(timer_stop.done() and not Start) {
 				stop();
 				timer_stop.stop();
+				if (motor == SYNCHRON) {
+					unload = true;
+					clump_timer.start(3000);
+				}
 			}
 
-			if(not contactor.is_on() /*or service.pressure_is_normal()*/
+			if(not contactor.is_on()
 				     or service.outData.error.overheat_fc or service.outData.error.overheat_c
-				     or service.outData.error.HV_low /*or service.outData.error.HV*/ or service.outData.error.voltage_board_low) {
+				     or service.outData.error.HV_low or service.outData.error.voltage_board_low or service.outData.error.voltage_board_high) {
 				stop();
 				timer_stop.stop();
 				rerun.start(5000);
+				led_red = true;
+				if (motor == SYNCHRON) {
+					unload = true;
+					clump_timer.start(3000);
+				}
 			}
 
 		}
@@ -576,38 +576,50 @@ if(motor == ASYNCHRON) {
 
 		if(adc.is_error_HV()) {
 			adc.reset_error_HV();
-			error++;
 			led_red = true;
 			stop();
 			service.outData.error.HV = true;
 			rerun.start(5000);
+			if (motor == SYNCHRON) {
+				unload = true;
+				clump_timer.start(3000);
+			}
 		}
 
 		if(adc.is_over_s() and not service.outData.error.current_S) {
 			adc.reset_over_s();
-			error++;
 			led_red = true;
 			stop();
 			service.outData.error.current_S = true;
 			rerun.start(5000);
+			if (motor == SYNCHRON) {
+				unload = true;
+				clump_timer.start(3000);
+			}
 		}
 
 		if(adc.is_over_a() and not service.outData.error.current_A) {
 			adc.reset_over_a();
-			error++;
 			led_red = true;
 			stop();
 			service.outData.error.current_A = true;
 			rerun.start(5000);
+			if (motor == SYNCHRON) {
+				unload = true;
+				clump_timer.start(3000);
+			}
 		}
 
 		if(adc.is_over_c() and not service.outData.error.current_C) {
 			adc.reset_over_c();
-			error++;
 			led_red = true;
 			stop();
 			service.outData.error.current_C = true;
 			rerun.start(5000);
+			if (motor == SYNCHRON) {
+				unload = true;
+				clump_timer.start(3000);
+			}
 		}
 
 		adc.reset_measure();

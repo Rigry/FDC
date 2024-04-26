@@ -67,11 +67,12 @@ class ADC_ : TickSubscriber
 
 	void adc_interrupt() {
 		HAL_ADC_Stop_DMA (&hadc1);
-		new_hv = buffer[3];
+		new_hv = buffer[HV];
 		if (abs(new_hv - h_voltage) > 170) {  // 250 ~= 96V
 			error_HV = true;
 		}
-		h_voltage += (new_hv - h_voltage) * 10 / 30;
+//		h_voltage += (new_hv - h_voltage) * 10 / 30;
+		h_voltage = new_hv;
 	}
 
 	void adc_injected_interrupt() {
@@ -256,6 +257,7 @@ public:
 			return arr_current_A[j];
 		if (i == phase_C)
 			return arr_current_C[j];
+		return 0;
 //		if (i == HV)
 //			return h_voltage;
 	}

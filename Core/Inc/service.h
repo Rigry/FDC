@@ -17,18 +17,19 @@ enum Error_code {
 }error_code;
 
 struct Error {
-	bool current_S   : 1;
-	bool current_A   : 1;
-	bool current_C   : 1;
-	bool HV          : 1;
-	bool on          : 1;
-	bool HV_low      : 1;
-	bool overheat_c  : 1;
-	bool overheat_fc : 1;
-	bool phase_break : 1;
-	bool voltage_board_low : 1;
-	bool contactor   : 1;
-	uint16_t res     : 5;
+	bool current_S          : 1;
+	bool current_A          : 1;
+	bool current_C          : 1;
+	bool HV                 : 1;
+	bool on                 : 1;
+	bool HV_low             : 1;
+	bool overheat_c         : 1;
+	bool overheat_fc        : 1;
+	bool phase_break        : 1;
+	bool voltage_board_low  : 1;
+	bool voltage_board_high : 1;
+	bool contactor          : 1;
+	uint16_t res            : 4;
 };
 
 struct In_data{
@@ -154,22 +155,10 @@ public:
 
 	void operator()(){
 
-//		outData.voltage_board  = k_adc * adc[V24] * 100;
+		outData.voltage_board  = k_adc * adc[V24] * 100 + 6; // 6 падение на диоде
 		outData.convertor_temp  = ntc(adc[Trad]);
-
-		new_pressure = (((k_adc * adc[Press]) * 100) * 3) / 2;
-		outData.pressure += (new_pressure - outData.pressure) / 2;
-
 		outData.current        = (abs(adc.value(PS) - adc.offset_I_S)) * 100 / 21;
-//		outData.max_current    = outData.max_current < adc.value(PS) ? adc.value(PS) : outData.max_current;
-//		outData.max_current    = outData.max_current > 3100 ? 0 : abs(outData.max_current - adc.offset_I_S) / 21;
-
 		outData.current_A      = adc.current();
-//		outData.max_current_A  = outData.max_current_A < adc.value(phase_A) ? adc.value(phase_A) : outData.max_current_A;
-//		outData.max_current_A  = outData.max_current_A > 3100 ? 0 : abs(outData.max_current_A - adc.offset_I_A) / 21;
-
-//		outData.max_current_C  = outData.max_current_C < adc.value(phase_C) ? adc.value(phase_C) : outData.max_current_C;
-//		outData.max_current_C  = outData.max_current_C > 3100 ? 0 : abs(outData.max_current_C - adc.offset_I_C) / 21;
 
 		new_hv = (adc.value_HV() * 350 / 4095 * 45) / 10;
 		if(measure_timer.done()) {
@@ -185,20 +174,7 @@ public:
 			HV_avarage /= qty_measure;
 			outData.high_voltage  += (HV_avarage - outData.high_voltage) * 10 / 60;
 		}
-//		outData.max_hv         = outData.max_hv < outData.high_voltage ? outData.high_voltage : outData.max_hv;
 
-//		if(outData.pressure >= 360) {
-//			if(press_delay.isCount()) {
-//				if(press_delay.done()) {
-//					done = true;
-//				}
-//			} else
-//				press_delay.start(1000);
-//		} else {
-//			press_delay.stop();
-//		}
-
-//		if(outData.pressure < 280) done = false;
 
 		kolhoz ^= timer.event();
 
@@ -252,3 +228,31 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 		interrupt_uart.interrupt();
 	}
 }
+
+
+//		new_pressure = (((k_adc * adc[Press]) * 100) * 3) / 2;
+//		outData.pressure += (new_pressure - outData.pressure) / 2;
+
+//		outData.max_current    = outData.max_current < adc.value(PS) ? adc.value(PS) : outData.max_current;
+//		outData.max_current    = outData.max_current > 3100 ? 0 : abs(outData.max_current - adc.offset_I_S) / 21;
+
+//		outData.max_current_A  = outData.max_current_A < adc.value(phase_A) ? adc.value(phase_A) : outData.max_current_A;
+//		outData.max_current_A  = outData.max_current_A > 3100 ? 0 : abs(outData.max_current_A - adc.offset_I_A) / 21;
+
+//		outData.max_current_C  = outData.max_current_C < adc.value(phase_C) ? adc.value(phase_C) : outData.max_current_C;
+//		outData.max_current_C  = outData.max_current_C > 3100 ? 0 : abs(outData.max_current_C - adc.offset_I_C) / 21;
+
+//		outData.max_hv         = outData.max_hv < outData.high_voltage ? outData.high_voltage : outData.max_hv;
+
+//		if(outData.pressure >= 360) {
+//			if(press_delay.isCount()) {
+//				if(press_delay.done()) {
+//					done = true;
+//				}
+//			} else
+//				press_delay.start(1000);
+//		} else {
+//			press_delay.stop();
+//		}
+
+//		if(outData.pressure < 280) done = false;
