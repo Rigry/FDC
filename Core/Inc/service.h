@@ -55,7 +55,7 @@ struct Out_data{
 constexpr float k_adc   = 3.3 / 4095;
 constexpr float k_adc_i = 3 * k_adc / 2 / 0.0167; // 3 и 2 потому что делитель 10 и 20 кОм, 0,025 В/А
 const uint16_t measure_time{25};
-constexpr uint16_t qty_measure = 250 / measure_time;
+constexpr uint16_t qty_measure = 200 / measure_time;
 
 template<class In_data_t, class Out_data_t>
 class Service
@@ -150,7 +150,7 @@ public:
       , arInData { }, arOutData { }, arInDataMin { }, arInDataMax {}
 	{
 		uart.receive();
-		timer.start(2000);
+		timer.start(500);
 	}
 
 	void operator()(){
@@ -172,7 +172,7 @@ public:
 				HV_avarage += arr_new_hv[i];
 			}
 			HV_avarage /= qty_measure;
-			outData.high_voltage  += (HV_avarage - outData.high_voltage) * 10 / 60;
+			outData.high_voltage  += (HV_avarage - outData.high_voltage) * 10 / 40;
 		}
 
 

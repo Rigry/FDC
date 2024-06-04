@@ -15,7 +15,7 @@ class Convertor {
 	Service<In_data, Out_data>& service;
 	Contactor& contactor;
 	Interrupt& period_callback;
-	Interrupt& adc_comparator_callback;
+//	Interrupt& adc_comparator_callback;
 	Pin& led_red;
 	Pin& led_green;
 	Pin& ventilator;
@@ -31,17 +31,33 @@ class Convertor {
 	Timer timer_stop;
 	Timer clump_timer;
 
-	uint16_t sin_table[qty_point]{3600, 5514, 6764
-								, 7199, 6764, 6764
-								, 7199, 6764, 5514
-								, 3600, 1250,    0
-								,    0,    0,    0
-								,    0,    0, 1250
+//	uint16_t sin_table[qty_point]{3600, 5514, 6764
+//								, 7199, 6764, 6764
+//								, 7199, 6764, 5514
+//								, 3600, 1250,    0
+//								,    0,    0,    0
+//								,    0,    0, 1250
+//								};
+	uint16_t sin_table[qty_point]{3600, 4627, 5514, 6234, 6764, 7089
+								, 7199, 7089, 6764, 6234, 6764, 7089
+								, 7199, 7089, 6764, 6234, 5514, 4627
+								, 3600, 2462, 1250,    0,    0,    0
+								,    0,    0,    0,    0,    0,    0
+								,    0,    0,    0,    0, 1250, 2462
 								};
+
+//	uint16_t sin_table[qty_point]{3599, 4223, 4829, 5398, 5912, 6355
+//								, 6715, 6980, 7143, 7198, 7143, 6980
+//								, 6715, 6355, 5912, 5398, 4829, 4223
+//								, 3599, 2974, 2368, 1799, 1285,  842
+//								,  482,  217,   54,    0,   54,  217
+//								,  482,  842, 1285, 1799, 2368, 2974
+//								};
+
 	uint8_t r{0};
 	uint8_t k{0};
-	uint8_t m{6};
-	uint8_t n{12};
+	uint8_t m{12};
+	uint8_t n{24};
 	uint32_t Km{5};
 	uint16_t Kp{1150};
 	uint16_t frequency{100};
@@ -59,12 +75,13 @@ class Convertor {
 	uint8_t error_A{0};
 	uint8_t error_C{0};
 	uint8_t error_F{0};
-	uint16_t min_ARR{356};
+	uint16_t min_ARR{184};
 
 	bool enable{true};
 	bool phase{false};
 	bool cool{false};
 	bool cold{false};
+	bool switcher{false};
 
 //	float radian = 10 * 3.14 / 180;
 	uint32_t div_f = 1'800'000 / (qty_point);
@@ -82,18 +99,20 @@ class Convertor {
 		}
 	} tim3_interrupt { *this };
 
-	struct adc_comparator_interrupt: Interrupting {
-		Parent &parent;
-		adc_comparator_interrupt(Parent &parent) :
-				parent(parent) {
-			parent.adc_comparator_callback.subscribe(this);
-		}
-		void interrupt() override {
-			parent.comparator_interrupt();
-		}
-	} adc_comparator_ { *this };
+//	struct adc_comparator_interrupt: Interrupting {
+//		Parent &parent;
+//		adc_comparator_interrupt(Parent &parent) :
+//				parent(parent) {
+//			parent.adc_comparator_callback.subscribe(this);
+//		}
+//		void interrupt() override {
+//			parent.comparator_interrupt();
+//		}
+//	} adc_comparator_ { *this };
 
 	void period_interrupt(){
+
+//		condens = 1;
 
 		TIM1->CCR1 = Km * sin_table[k++] / 1000;
 		TIM1->CCR2 = Km * sin_table[m++] / 1000;
@@ -103,19 +122,23 @@ class Convertor {
 		if (m >= qty_point) {m = 0;}
 		if (n >= qty_point) {n = 0;}
 
-		HAL_ADCEx_InjectedStart_IT(&hadc2);
+		switcher ^= 1;
+
+		if(switcher) HAL_ADCEx_InjectedStart_IT(&hadc2);
+
+//		condens = 0;
 
 	}
 
-	void comparator_interrupt() {
-
-	}
+//	void comparator_interrupt() {
+//
+//	}
 
 public:
 
-	Convertor(ADC_& adc, Service<In_data, Out_data>& service, Contactor& contactor, Interrupt& period_callback, Interrupt& adc_comparator_callback
+	Convertor(ADC_& adc, Service<In_data, Out_data>& service, Contactor& contactor, Interrupt& period_callback/*, Interrupt& adc_comparator_callback*/
 			, Pin& led_red, Pin& led_green, Pin& ventilator, Pin& unload, Pin& condens, Pin& TD_DM, Pin& SP, Pin& Start, Pin& Motor)
-	: adc{adc}, service{service}, contactor{contactor}, period_callback{period_callback}, adc_comparator_callback{adc_comparator_callback}
+	: adc{adc}, service{service}, contactor{contactor}, period_callback{period_callback}/*, adc_comparator_callback{adc_comparator_callback}*/
 	, led_red{led_red}, led_green{led_green}, ventilator{ventilator}, unload{unload}, condens{condens}, TD_DM{TD_DM}, SP{SP}, Start{Start}, Motor{Motor}
 	{rerun.time_set = 0; timer_stop.time_set = 0; clump_timer.time_set = 0;
 		if(motor == SYNCHRON) {
@@ -123,10 +146,14 @@ public:
 			clump_timer.start(3000);
 		}
 		motor = Motor;
+//		TIM3->ARR = 180;
+//		HAL_TIM_Base_Start_IT(&htim3);
+//		pusk();
 	}
 
 	void operator() (){
 
+//		condens = 1;
 		service();
 		contactor();
 
@@ -162,6 +189,7 @@ public:
 /////////////////CONDITIONER
 
 		if(contactor.is_on() and enable) alarm();
+//		condens = 0;
 
 		switch(state) {
 		case wait:
@@ -204,10 +232,10 @@ if(motor == ASYNCHRON) {
  	if(service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
 		U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
 		min_ARR = ( (div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
-		if(min_ARR < 360) min_ARR = 360;
+		if(min_ARR < 312) min_ARR = 312;
 	} else {
 		U_phase_max = 212;
-		min_ARR = 360;
+		min_ARR = 184;
 	}
 
 }
@@ -353,40 +381,40 @@ if(motor == ASYNCHRON) {
 
 //	service.outData.high_voltage = 550;
 
-				if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540 and not cold) {
+				if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
 					U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
 					min_ARR = ((div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
-					if(min_ARR < 360) min_ARR = 360;
-				} else if (not cold){
-					min_ARR = 360;
+					if(min_ARR < 312) min_ARR = 312;
+				} else {
+					min_ARR = 184;
 					U_phase_max = 212;
 				}
 
 				U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 115) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
-				U_phase += (U_phase_max - U_phase) * 10 / 50;
+//				U_phase += (U_phase_max - U_phase) * 10 / 50;
 				Km = offset + Kp * (div_f / TIM3->ARR) / (service.outData.high_voltage);
 
 				if (TIM3->ARR <= uint32_t(min_ARR + 5)) {
-					unload = false;
+					unload = true;
 					error = 0;
 				}
 
 
-				if(TIM3->ARR <= min_ARR) {
-					if ((U_phase > U_phase_max)) {
-						if((U_phase - U_phase_max) > 8)
-							Kp--;
-					} else {
-						if ((U_phase_max - U_phase > 8))
-							Kp++;
-					}
-
-					if (adc.current() > 160) {
-						if (Kp > 1250) {
-							Kp -= 4;
-						}
-					}
-				}
+//				if(TIM3->ARR <= min_ARR) {
+//					if ((U_phase > U_phase_max)) {
+//						if((U_phase - U_phase_max) > 8)
+//							Kp--;
+//					} else {
+//						if ((U_phase_max - U_phase > 8))
+//							Kp++;
+//					}
+//
+//					if (adc.current() > 180) {
+//						if (Kp > 1250) {
+//							Kp -= 4;
+//						}
+//					}
+//				}
 				if (adc.current() < 35) {
 					if (Kp < 2200) {
 						Kp++;
@@ -406,57 +434,57 @@ if(motor == ASYNCHRON) {
 
 } //else if(motor == SYNCHRON) {
 
-			if (Km >= 990) {
-				Km = 990;
+			if (Km >= 940) {
+				Km = 940;
 			}
 
 			if (timer.done()) {
 				timer.stop();
 				timer.start(time);
 
-if(motor == ASYNCHRON) {
+				if(motor == ASYNCHRON) {
 
-	if (TIM3->ARR != min_ARR) {
-		if (TIM3->ARR > 6000) {
-			TIM3->ARR -= 25;
-		} else if (TIM3->ARR > min_ARR) {
-			TIM3->ARR -= 5;
-		} else {
-			TIM3->ARR++;
-		}
-	}
-
-} else if(motor == SYNCHRON) {
-			if(TIM3->ARR != min_ARR) {
-				if(TIM3->ARR > min_ARR) {
-					if(TIM3->ARR > 624) {
-						if(TIM3->ARR > 1500) {
-							TIM3->ARR -= 32;
+					if (TIM3->ARR != min_ARR) {
+						if (TIM3->ARR > 6000) {
+							TIM3->ARR -= 25;
+						} else if (TIM3->ARR > min_ARR) {
+							TIM3->ARR -= 5;
 						} else {
-
-							TIM3->ARR -= 3;
+							TIM3->ARR++;
 						}
-					} else {
-						TIM3->ARR-=1;
 					}
-				} else {
-					TIM3->ARR++;
-				}
 
-				if(TIM3->ARR > 624) {
-					time = 3;
-				} else if (TIM3->ARR >= 554) {
-					time = 6;
-				} else if (TIM3->ARR < 554) {
-					time = 8;
-				}
+				} else if(motor == SYNCHRON) {
+							if(TIM3->ARR != min_ARR) {
+								if(TIM3->ARR > min_ARR) {
+									if(TIM3->ARR > 624) {
+										if(TIM3->ARR > 1500) {
+											TIM3->ARR -= 32;
+										} else {
 
+											TIM3->ARR -= 3;
+										}
+									} else {
+										TIM3->ARR-=1;
+									}
+								} else {
+									TIM3->ARR++;
+								}
+
+								if(TIM3->ARR > 624) {
+									time = 2;
+								} else if (TIM3->ARR >= 554) {
+									time = 5;
+								} else if (TIM3->ARR < 554) {
+									time = 7;
+								}
+
+							}
+				} // else if(motor == SYNCHRON) {
 			}
-	}
-} // else if(motor == SYNCHRON) {
 			break;
-		}
-	}
+		} // switch
+	} //void operator() (){
 
 	void pusk() {
 
@@ -470,7 +498,7 @@ if(motor == ASYNCHRON) {
 				frequency = 10;
 				Kp = 1140;
 				time = 2;
-				offset = 38;
+				offset = 40;
 		}
 		Km = 5;
 		TIM3->ARR = (div_f / (frequency)) * 10 - 1;
@@ -515,8 +543,12 @@ if(motor == ASYNCHRON) {
 		contactor.stop();
 
 		k = 0;
-		m = 6;
-		n = 12;
+		m = 12;
+		n = 24;
+
+//		k = 0;
+//		m = 6;
+//		n = 12;
 		state = State::wait;
 		adc.measure_offset();
 
@@ -529,7 +561,13 @@ if(motor == ASYNCHRON) {
 		  )
 		{
 			if(not Start and not timer_stop.isCount()) {
-				timer_stop.start(1000);
+//				timer_stop.start(1000);
+				stop();
+								timer_stop.stop();
+								if (motor == SYNCHRON) {
+									unload = true;
+									clump_timer.start(3000);
+								}
 			}
 
 			if(timer_stop.done() and not Start) {
@@ -628,7 +666,7 @@ if(motor == ASYNCHRON) {
 };
 
 Interrupt period_callback;
-Interrupt adc_comparator_callback;
+//Interrupt adc_comparator_callback;
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef * htim){
 	if(htim->Instance == TIM3) //check if the interrupt comes from ACD2
@@ -637,10 +675,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef * htim){
 	}
 }
 
-void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc){
-	if(hadc->Instance == ADC2) //check if the interrupt comes from ACD2
-	{
-		adc_comparator_callback.interrupt();
-	}
-}
+//void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc){
+//	if(hadc->Instance == ADC2) //check if the interrupt comes from ACD2
+//	{
+//		adc_comparator_callback.interrupt();
+//	}
+//}
 

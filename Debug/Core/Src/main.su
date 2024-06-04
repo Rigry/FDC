@@ -13,7 +13,6 @@ timers.h:42:7:TickSubscriber::TickSubscriber()	16	static
 timers.h:67:3:Timer::Timer()	16	static
 timers.h:71:3:Timer::Timer(uint32_t)	16	static
 timers.h:92:8:virtual void Timer::notify()	16	static
-timers.h:116:51:TickUpdater::interrupt()::<lambda()>	16	static
 timers.h:113:6:void TickUpdater::interrupt()	16	static
 timers.h:122:6:void Timer::start(uint32_t)	16	static
 timers.h:128:6:bool Timer::event()	16	static
@@ -72,20 +71,16 @@ contactor.h:18:7:void Contactor::start()	16	static
 contactor.h:24:7:void Contactor::stop()	16	static
 contactor.h:32:7:bool Contactor::is_on()	16	static
 contactor.h:36:7:void Contactor::operator()()	16	static
-convertor.h:76:3:Convertor::TIM3_interrupt::TIM3_interrupt(Convertor::Parent&)	16	static
-convertor.h:80:8:virtual void Convertor::TIM3_interrupt::interrupt()	16	static
-convertor.h:87:3:Convertor::adc_comparator_interrupt::adc_comparator_interrupt(Convertor::Parent&)	16	static
-convertor.h:91:8:virtual void Convertor::adc_comparator_interrupt::interrupt()	16	static
-convertor.h:96:7:void Convertor::period_interrupt()	16	static
-convertor.h:110:7:void Convertor::comparator_interrupt()	16	static
-convertor.h:116:2:Convertor::Convertor(ADC_&, Service<In_data, Out_data>&, Contactor&, Interrupt&, Interrupt&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	32	static
-convertor.h:128:7:void Convertor::operator()()	24	static
-convertor.h:461:7:void Convertor::pusk()	16	static
-convertor.h:501:7:void Convertor::stop()	16	static
-convertor.h:525:7:void Convertor::alarm()	16	static
-convertor.h:633:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
-convertor.h:640:6:void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef*)	16	static
-main.cpp:93:5:int main()	848	static
+convertor.h:93:3:Convertor::TIM3_interrupt::TIM3_interrupt(Convertor::Parent&)	16	static
+convertor.h:97:8:virtual void Convertor::TIM3_interrupt::interrupt()	16	static
+convertor.h:113:7:void Convertor::period_interrupt()	16	static
+convertor.h:139:2:Convertor::Convertor(ADC_&, Service<In_data, Out_data>&, Contactor&, Interrupt&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	24	static
+convertor.h:154:7:void Convertor::operator()()	24	static
+convertor.h:489:7:void Convertor::pusk()	16	static
+convertor.h:529:7:void Convertor::stop()	16	static
+convertor.h:557:7:void Convertor::alarm()	16	static
+convertor.h:671:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
+main.cpp:93:5:int main()	856	static
 main.cpp:179:6:void SystemClock_Config()	96	static
 main.cpp:225:13:void MX_ADC1_Init()	24	static
 main.cpp:294:13:void MX_ADC2_Init()	64	static
@@ -102,7 +97,6 @@ static_vector.h:20:13:uint8_t Static_vector<T, size_>::cend() const [with T = Su
 static_vector.h:44:7:T Static_vector<T, size_>::operator[](size_t) const [with T = Subscriber*; unsigned int size_ = 12]	16	static
 static_vector.h:18:5:Static_vector<T, size_>::Static_vector() [with T = Subscriber*; unsigned int size_ = 12]	16	static
 systick.h:13:30:void SystemTick::initInterrupt() [with short unsigned int us = 1000]	16	static
-timers.h:107:13:void every_qty_cnt_call(size_t&, size_t, Function) [with Function = TickUpdater::interrupt()::<lambda()>]	24	static
 cmath:415:5:constexpr typename __gnu_cxx::__promote_2<_Tp, _Up>::__type std::pow(_Tp, _Up) [with _Tp = int; _Up = int]	24	static
 service.h:156:7:void Service<In_data_t, Out_data_t>::operator()() [with In_data_t = In_data; Out_data_t = Out_data]	32	static
 uart.h:15:2:UART_<buffer_size>::UART_(Pin&) [with unsigned int buffer_size = 26]	16	static

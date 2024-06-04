@@ -4,7 +4,7 @@
 #include "interrupt.h"
 #include <cmath>
 
-const uint16_t qty_point{18};
+const uint16_t qty_point{36};
 
 enum {PS = 1, phase_A = 2, phase_C = 3};
 enum {V24 = 0, Press = 1, Trad = 2, HV = 3};
@@ -187,11 +187,11 @@ class ADC_ : TickSubscriber
 			over_current_s = 0;
 			over_current_a = 0;
 			over_current_c = 0;
-			if(second_half) {
-				second_half = false;
+//			if(second_half) {
+//				second_half = false;
 				over_cur_phase = 0;
-			} else
-				second_half = true;
+//			} else
+//				second_half = true;
 		}
 //		if(m < 15) m++;
 //		else m = 0;

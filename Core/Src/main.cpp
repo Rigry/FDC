@@ -136,7 +136,7 @@ int main(void)
   decltype(auto) Start      = Pin{GPIOB, START_Pin    };
   decltype(auto) Motor      = Pin{GPIOA, ASYNC_Pin    };
 
-  decltype(auto) adc = ADC_ {adc_callback, adc_injected_callback, 4, 1};
+  decltype(auto) adc = ADC_ {adc_callback, adc_injected_callback, 4, 10};
 
   decltype(auto) uart = UART_<>{led_can};
 
@@ -145,7 +145,7 @@ int main(void)
   decltype(auto) contactor = Contactor{adc, service};
 //  decltype(auto) cooler = Cooler{service};
 
-  decltype(auto) convertor = Convertor{adc, service, contactor, period_callback, adc_comparator_callback, led_red, led_green, ventilator, unload, condens, TD_DM, SP, Start, Motor};
+  decltype(auto) convertor = Convertor{adc, service, contactor, period_callback/*, adc_comparator_callback*/, led_red, led_green, ventilator, unload, condens, TD_DM, SP, Start, Motor};
 
 //  Timer timer1{500};
 

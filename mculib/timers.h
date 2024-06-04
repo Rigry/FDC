@@ -113,9 +113,9 @@ inline void every_qty_cnt_call(size_t& cnt, size_t qty, Function call)
 void TickUpdater::interrupt()
 {
 //    subtick.notify();
-    every_qty_cnt_call (subtick_cnt, subtick_qty, [this]{
+//    every_qty_cnt_call (subtick_cnt, subtick_qty, [this]{
         notify();
-    });
+//    });
 }
 
 
