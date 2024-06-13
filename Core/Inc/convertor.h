@@ -75,7 +75,9 @@ class Convertor {
 	uint8_t error_A{0};
 	uint8_t error_C{0};
 	uint8_t error_F{0};
-	uint16_t min_ARR{184};
+	uint16_t min_ARR{360};
+	uint16_t value_ARR{380};
+	uint16_t ARR_ASIN{2080};
 
 	bool enable{true};
 	bool phase{false};
@@ -84,7 +86,7 @@ class Convertor {
 	bool switcher{false};
 
 //	float radian = 10 * 3.14 / 180;
-	uint32_t div_f = 1'800'000 / (qty_point);
+	uint32_t div_f = 3'600'000 / (qty_point);
 
 	using Parent = Convertor;
 
@@ -193,7 +195,7 @@ public:
 
 		switch(state) {
 		case wait:
-			motor = Motor;
+//			motor = Motor;
 
 if(motor == ASYNCHRON) {
 /////////////////CONDITIONER
@@ -209,33 +211,33 @@ if(motor == ASYNCHRON) {
 	}
 */
 /////////////////CONDITIONER
-	adc.set_max_current(20);
-	adc.set_max_current_phase(24);
+	adc.set_max_current(10);
+	adc.set_max_current_phase(12);
 	unload = false;
 	if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
 		U_phase_max = ((((service.outData.high_voltage / 20) * 990) / 141) * 115) / 100;
 		min_ARR = (div_f / ((U_phase_max) * 5)) * 22; // 5/22 = 50/220
-		if(min_ARR <= 2081) min_ARR = 2081;
+		if(min_ARR <= ARR_ASIN) min_ARR = ARR_ASIN;
 	} else {
 		U_phase_max = 220;
-		min_ARR = 2080;
+		min_ARR = ARR_ASIN;
 	}
 
 
 } else if (motor == SYNCHRON) {
 
-	adc.set_max_current(18);
-	adc.set_max_current_phase(28);
+	adc.set_max_current(10);
+	adc.set_max_current_phase(14);
 	if(clump_timer.done()) {
 		clump_timer.stop(); unload = false;
 	}
  	if(service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
 		U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
 		min_ARR = ( (div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
-		if(min_ARR < 312) min_ARR = 312;
+		if(min_ARR < value_ARR) min_ARR = value_ARR;
 	} else {
 		U_phase_max = 212;
-		min_ARR = 184;
+		min_ARR = value_ARR;
 	}
 
 }
@@ -329,10 +331,10 @@ if(motor == ASYNCHRON) {
 	if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
 		U_phase_max = ((((service.outData.high_voltage / 20) * 990) / 141) * 115) / 100;
 		min_ARR = (div_f / ((U_phase_max) * 5)) * 22; // 5/22 = 50/220
-		if(min_ARR <= 2081) min_ARR = 2081;
+		if(min_ARR <= ARR_ASIN) min_ARR = ARR_ASIN;
 	} else {
 		U_phase_max = 220;
-		min_ARR = 2080;
+		min_ARR = ARR_ASIN;
 	}
 
 	U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 112) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
@@ -348,12 +350,12 @@ if(motor == ASYNCHRON) {
 	}
 
 	if (TIM3->ARR <= min_ARR) {
-		if (U_phase - U_phase_max > 10) {
-			Kp--;
-		} else {
-			if(adc.current() < 120 and (U_phase_max - U_phase > 10))
-			Kp++;
-		}
+//		if (U_phase - U_phase_max > 10) {
+//			Kp--;
+//		} else {
+//			if(adc.current() < 120 and (U_phase_max - U_phase > 10))
+//			Kp++;
+//		}
 
 		if (adc.current() > 160) {
 			if (Kp > 5000) {
@@ -382,11 +384,11 @@ if(motor == ASYNCHRON) {
 //	service.outData.high_voltage = 550;
 
 				if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
-					U_phase_max = ((((service.outData.high_voltage / 20) * 940) / 141) * 115) / 100;
+					U_phase_max = ((((service.outData.high_voltage / 20) * 980) / 141) * 115) / 100;
 					min_ARR = ((div_f / (U_phase_max)) * 50) / 70; // 70/53 = 280/212
-					if(min_ARR < 312) min_ARR = 312;
+					if(min_ARR < value_ARR) min_ARR = value_ARR;
 				} else {
-					min_ARR = 184;
+					min_ARR = value_ARR;
 					U_phase_max = 212;
 				}
 
@@ -395,7 +397,7 @@ if(motor == ASYNCHRON) {
 				Km = offset + Kp * (div_f / TIM3->ARR) / (service.outData.high_voltage);
 
 				if (TIM3->ARR <= uint32_t(min_ARR + 5)) {
-					unload = true;
+					unload = false;
 					error = 0;
 				}
 
@@ -445,10 +447,10 @@ if(motor == ASYNCHRON) {
 				if(motor == ASYNCHRON) {
 
 					if (TIM3->ARR != min_ARR) {
-						if (TIM3->ARR > 6000) {
-							TIM3->ARR -= 25;
+						if (TIM3->ARR > uint16_t(6000)) {
+							TIM3->ARR -= uint16_t(30);
 						} else if (TIM3->ARR > min_ARR) {
-							TIM3->ARR -= 5;
+							TIM3->ARR -= uint16_t(7);
 						} else {
 							TIM3->ARR++;
 						}
@@ -457,25 +459,25 @@ if(motor == ASYNCHRON) {
 				} else if(motor == SYNCHRON) {
 							if(TIM3->ARR != min_ARR) {
 								if(TIM3->ARR > min_ARR) {
-									if(TIM3->ARR > 624) {
-										if(TIM3->ARR > 1500) {
-											TIM3->ARR -= 32;
+									if(TIM3->ARR > uint16_t(624)) {
+										if(TIM3->ARR > uint16_t(1500)) {
+											TIM3->ARR -= uint16_t(32);
 										} else {
 
-											TIM3->ARR -= 3;
+											TIM3->ARR -= uint16_t(3);
 										}
 									} else {
-										TIM3->ARR-=1;
+										TIM3->ARR-= uint16_t(1);
 									}
 								} else {
 									TIM3->ARR++;
 								}
 
-								if(TIM3->ARR > 624) {
+								if(TIM3->ARR > uint16_t(624)) {
 									time = 2;
-								} else if (TIM3->ARR >= 554) {
+								} else if (TIM3->ARR >= uint16_t(558)) {
 									time = 5;
-								} else if (TIM3->ARR < 554) {
+								} else if (TIM3->ARR < uint16_t(558)) {
 									time = 7;
 								}
 
@@ -489,19 +491,19 @@ if(motor == ASYNCHRON) {
 	void pusk() {
 
 		if(motor == ASYNCHRON) {
-				frequency = 60;
+				frequency = 6;
 				Kp = 6000;
 				time = 3;
 				offset = 35;
 
 		} else if(motor == SYNCHRON) {
-				frequency = 10;
+				frequency = 5;
 				Kp = 1140;
 				time = 2;
 				offset = 40;
 		}
 		Km = 5;
-		TIM3->ARR = (div_f / (frequency)) * 10 - 1;
+		TIM3->ARR = (div_f / (frequency)) - 1;
 
 		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 		HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
