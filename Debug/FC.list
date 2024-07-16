@@ -4863,7 +4863,7 @@ public:
  8002a82:	4618      	mov	r0, r3
  8002a84:	f7ff fb0e 	bl	80020a4 <_ZN4ADC_14reset_error_HVEv>
 
-		if (service.outData.error.overheat_fc |= service.outData.convertor_temp >= 60) {
+		if (service.outData.error.overheat_fc |= service.outData.convertor_temp >= 80) {
  8002a88:	687b      	ldr	r3, [r7, #4]
  8002a8a:	689b      	ldr	r3, [r3, #8]
  8002a8c:	f893 308e 	ldrb.w	r3, [r3, #142]	; 0x8e
@@ -4873,7 +4873,7 @@ public:
  8002a98:	687b      	ldr	r3, [r7, #4]
  8002a9a:	689b      	ldr	r3, [r3, #8]
  8002a9c:	f9b3 307c 	ldrsh.w	r3, [r3, #124]	; 0x7c
- 8002aa0:	2b3b      	cmp	r3, #59	; 0x3b
+ 8002aa0:	2b4f      	cmp	r3, #79	; 0x4f
  8002aa2:	bfcc      	ite	gt
  8002aa4:	2301      	movgt	r3, #1
  8002aa6:	2300      	movle	r3, #0
@@ -4894,13 +4894,13 @@ public:
  8002ace:	b2db      	uxtb	r3, r3
  8002ad0:	2b00      	cmp	r3, #0
  8002ad2:	d010      	beq.n	8002af6 <_ZN9ConvertorclEv+0x1b6>
-			service.outData.error.overheat_fc = service.outData.convertor_temp >= 50;
+			service.outData.error.overheat_fc = service.outData.convertor_temp >= 70;
  8002ad4:	687b      	ldr	r3, [r7, #4]
  8002ad6:	689b      	ldr	r3, [r3, #8]
  8002ad8:	f9b3 307c 	ldrsh.w	r3, [r3, #124]	; 0x7c
  8002adc:	687a      	ldr	r2, [r7, #4]
  8002ade:	6892      	ldr	r2, [r2, #8]
- 8002ae0:	2b31      	cmp	r3, #49	; 0x31
+ 8002ae0:	2b45      	cmp	r3, #69	; 0x45
  8002ae2:	bfcc      	ite	gt
  8002ae4:	2301      	movgt	r3, #1
  8002ae6:	2300      	movle	r3, #0
@@ -4953,16 +4953,16 @@ if(motor == ASYNCHRON) {
  8002b34:	f893 30d7 	ldrb.w	r3, [r3, #215]	; 0xd7
  8002b38:	2b01      	cmp	r3, #1
  8002b3a:	d172      	bne.n	8002c22 <_ZN9ConvertorclEv+0x2e2>
-	adc.set_max_current(10);
+	adc.set_max_current(16);
  8002b3c:	687b      	ldr	r3, [r7, #4]
  8002b3e:	685b      	ldr	r3, [r3, #4]
- 8002b40:	210a      	movs	r1, #10
+ 8002b40:	2110      	movs	r1, #16
  8002b42:	4618      	mov	r0, r3
  8002b44:	f7ff fb0c 	bl	8002160 <_ZN4ADC_15set_max_currentEt>
-	adc.set_max_current_phase(12);
+	adc.set_max_current_phase(20);
  8002b48:	687b      	ldr	r3, [r7, #4]
  8002b4a:	685b      	ldr	r3, [r3, #4]
- 8002b4c:	210c      	movs	r1, #12
+ 8002b4c:	2114      	movs	r1, #20
  8002b4e:	4618      	mov	r0, r3
  8002b50:	f7ff fb15 	bl	800217e <_ZN4ADC_21set_max_current_phaseEt>
 	unload = false;
@@ -5055,16 +5055,16 @@ if(motor == ASYNCHRON) {
  8002c24:	f893 30d7 	ldrb.w	r3, [r3, #215]	; 0xd7
  8002c28:	2b00      	cmp	r3, #0
  8002c2a:	f040 8085 	bne.w	8002d38 <_ZN9ConvertorclEv+0x3f8>
-	adc.set_max_current(10);
+	adc.set_max_current(16);
  8002c2e:	687b      	ldr	r3, [r7, #4]
  8002c30:	685b      	ldr	r3, [r3, #4]
- 8002c32:	210a      	movs	r1, #10
+ 8002c32:	2110      	movs	r1, #16
  8002c34:	4618      	mov	r0, r3
  8002c36:	f7ff fa93 	bl	8002160 <_ZN4ADC_15set_max_currentEt>
-	adc.set_max_current_phase(14);
+	adc.set_max_current_phase(20);
  8002c3a:	687b      	ldr	r3, [r7, #4]
  8002c3c:	685b      	ldr	r3, [r3, #4]
- 8002c3e:	210e      	movs	r1, #14
+ 8002c3e:	2114      	movs	r1, #20
  8002c40:	4618      	mov	r0, r3
  8002c42:	f7ff fa9c 	bl	800217e <_ZN4ADC_21set_max_current_phaseEt>
 	if(clump_timer.done()) {
@@ -6075,9 +6075,9 @@ if(motor == ASYNCHRON) {
  800350a:	f893 30d7 	ldrb.w	r3, [r3, #215]	; 0xd7
  800350e:	2b01      	cmp	r3, #1
  8003510:	d111      	bne.n	8003536 <_ZN9Convertor4puskEv+0x36>
-				frequency = 6;
+				frequency = 5;
  8003512:	687b      	ldr	r3, [r7, #4]
- 8003514:	2206      	movs	r2, #6
+ 8003514:	2205      	movs	r2, #5
  8003516:	f8a3 20ca 	strh.w	r2, [r3, #202]	; 0xca
 				Kp = 6000;
  800351a:	687b      	ldr	r3, [r7, #4]
@@ -6087,9 +6087,9 @@ if(motor == ASYNCHRON) {
  8003524:	687b      	ldr	r3, [r7, #4]
  8003526:	2203      	movs	r2, #3
  8003528:	f8a3 20d2 	strh.w	r2, [r3, #210]	; 0xd2
-				offset = 35;
+				offset = 30;
  800352c:	687b      	ldr	r3, [r7, #4]
- 800352e:	2223      	movs	r2, #35	; 0x23
+ 800352e:	221e      	movs	r2, #30
  8003530:	f883 20da 	strb.w	r2, [r3, #218]	; 0xda
  8003534:	e015      	b.n	8003562 <_ZN9Convertor4puskEv+0x62>
 

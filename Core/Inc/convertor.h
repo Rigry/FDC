@@ -175,8 +175,8 @@ public:
 		if(service.outData.high_voltage <= 300) U_stop = true;
 		else if(service.outData.high_voltage > 310) {U_stop = false; adc.reset_error_HV();}
 
-		if (service.outData.error.overheat_fc |= service.outData.convertor_temp >= 60) {
-			service.outData.error.overheat_fc = service.outData.convertor_temp >= 50;
+		if (service.outData.error.overheat_fc |= service.outData.convertor_temp >= 80) {
+			service.outData.error.overheat_fc = service.outData.convertor_temp >= 70;
 		}
 
 /////////////////CONDITIONER
@@ -211,8 +211,8 @@ if(motor == ASYNCHRON) {
 	}
 */
 /////////////////CONDITIONER
-	adc.set_max_current(10);
-	adc.set_max_current_phase(12);
+	adc.set_max_current(16);
+	adc.set_max_current_phase(20);
 	unload = false;
 	if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
 		U_phase_max = ((((service.outData.high_voltage / 20) * 990) / 141) * 115) / 100;
@@ -226,8 +226,8 @@ if(motor == ASYNCHRON) {
 
 } else if (motor == SYNCHRON) {
 
-	adc.set_max_current(10);
-	adc.set_max_current_phase(14);
+	adc.set_max_current(16);
+	adc.set_max_current_phase(20);
 	if(clump_timer.done()) {
 		clump_timer.stop(); unload = false;
 	}
@@ -491,10 +491,10 @@ if(motor == ASYNCHRON) {
 	void pusk() {
 
 		if(motor == ASYNCHRON) {
-				frequency = 6;
+				frequency = 5;
 				Kp = 6000;
 				time = 3;
-				offset = 35;
+				offset = 30;
 
 		} else if(motor == SYNCHRON) {
 				frequency = 5;
