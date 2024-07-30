@@ -77,7 +77,7 @@ class Convertor {
 	uint8_t error_F{0};
 	uint16_t min_ARR{360};
 	uint16_t value_ARR{380};
-	uint16_t ARR_ASIN{2080};
+	uint16_t ARR_ASIN{2000};
 
 	bool enable{true};
 	bool phase{false};
@@ -114,10 +114,12 @@ class Convertor {
 
 	void period_interrupt(){
 
-//		condens = 1;
+		if (Km >= 990) {
+			Km = 990;
+		}
 
-		TIM1->CCR1 = Km * sin_table[k++] / 1000;
-		TIM1->CCR2 = Km * sin_table[m++] / 1000;
+		TIM1->CCR1 = Km * sin_table[m++] / 1000;
+		TIM1->CCR2 = Km * sin_table[k++] / 1000;
 		TIM1->CCR3 = Km * sin_table[n++] / 1000;
 
 		if (k >= qty_point) {k = 0;}
@@ -127,8 +129,6 @@ class Convertor {
 		switcher ^= 1;
 
 		if(switcher) HAL_ADCEx_InjectedStart_IT(&hadc2);
-
-//		condens = 0;
 
 	}
 
@@ -145,17 +145,13 @@ public:
 	{rerun.time_set = 0; timer_stop.time_set = 0; clump_timer.time_set = 0;
 		if(motor == SYNCHRON) {
 			unload = true;
-			clump_timer.start(3000);
+			clump_timer.start(15000);
 		}
 		motor = Motor;
-//		TIM3->ARR = 180;
-//		HAL_TIM_Base_Start_IT(&htim3);
-//		pusk();
 	}
 
 	void operator() (){
 
-//		condens = 1;
 		service();
 		contactor();
 
@@ -191,11 +187,9 @@ public:
 /////////////////CONDITIONER
 
 		if(contactor.is_on() and enable) alarm();
-//		condens = 0;
 
 		switch(state) {
 		case wait:
-//			motor = Motor;
 
 if(motor == ASYNCHRON) {
 /////////////////CONDITIONER
@@ -242,9 +236,9 @@ if(motor == ASYNCHRON) {
 
 }
 
-			enable = Start and not rerun.isCount()
+			enable = Start
+					 and not rerun.isCount()
 					 and not service.outData.error.overheat_fc and not service.outData.error.overheat_c
-					 and not service.outData.error.HV_low
 					 and not service.outData.error.voltage_board_low and not service.outData.error.voltage_board_high
 					 and not U_stop;
 
@@ -436,21 +430,21 @@ if(motor == ASYNCHRON) {
 
 } //else if(motor == SYNCHRON) {
 
-			if (Km >= 940) {
-				Km = 940;
+			if (Km >= 990) {
+				Km = 990;
 			}
 
-			if (timer.done()) {
+			if (timer.done() and TIM3->ARR != min_ARR) {
 				timer.stop();
 				timer.start(time);
 
 				if(motor == ASYNCHRON) {
 
 					if (TIM3->ARR != min_ARR) {
-						if (TIM3->ARR > uint16_t(6000)) {
-							TIM3->ARR -= uint16_t(30);
+						if (TIM3->ARR > uint16_t(4000)) {
+							TIM3->ARR -= uint16_t(40);
 						} else if (TIM3->ARR > min_ARR) {
-							TIM3->ARR -= uint16_t(7);
+							TIM3->ARR -= uint16_t(10);
 						} else {
 							TIM3->ARR++;
 						}
@@ -548,9 +542,6 @@ if(motor == ASYNCHRON) {
 		m = 12;
 		n = 24;
 
-//		k = 0;
-//		m = 6;
-//		n = 12;
 		state = State::wait;
 		adc.measure_offset();
 
@@ -565,11 +556,11 @@ if(motor == ASYNCHRON) {
 			if(not Start and not timer_stop.isCount()) {
 //				timer_stop.start(1000);
 				stop();
-								timer_stop.stop();
-								if (motor == SYNCHRON) {
-									unload = true;
-									clump_timer.start(3000);
-								}
+				timer_stop.stop();
+				if (motor == SYNCHRON) {
+					unload = true;
+					clump_timer.start(15000);
+				}
 			}
 
 			if(timer_stop.done() and not Start) {
@@ -577,7 +568,7 @@ if(motor == ASYNCHRON) {
 				timer_stop.stop();
 				if (motor == SYNCHRON) {
 					unload = true;
-					clump_timer.start(3000);
+					clump_timer.start(15000);
 				}
 			}
 
@@ -590,7 +581,7 @@ if(motor == ASYNCHRON) {
 				led_red = true;
 				if (motor == SYNCHRON) {
 					unload = true;
-					clump_timer.start(3000);
+					clump_timer.start(15000);
 				}
 			}
 
@@ -622,7 +613,7 @@ if(motor == ASYNCHRON) {
 			rerun.start(5000);
 			if (motor == SYNCHRON) {
 				unload = true;
-				clump_timer.start(3000);
+				clump_timer.start(15000);
 			}
 		}
 
@@ -634,7 +625,7 @@ if(motor == ASYNCHRON) {
 			rerun.start(5000);
 			if (motor == SYNCHRON) {
 				unload = true;
-				clump_timer.start(3000);
+				clump_timer.start(15000);
 			}
 		}
 
@@ -646,7 +637,7 @@ if(motor == ASYNCHRON) {
 			rerun.start(5000);
 			if (motor == SYNCHRON) {
 				unload = true;
-				clump_timer.start(3000);
+				clump_timer.start(15000);
 			}
 		}
 
@@ -658,7 +649,7 @@ if(motor == ASYNCHRON) {
 			rerun.start(5000);
 			if (motor == SYNCHRON) {
 				unload = true;
-				clump_timer.start(3000);
+				clump_timer.start(15000);
 			}
 		}
 

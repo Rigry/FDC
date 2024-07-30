@@ -58,7 +58,9 @@
 extern DMA_HandleTypeDef hdma_adc1;
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
+extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim4;
 extern DMA_HandleTypeDef hdma_usart3_tx;
 extern DMA_HandleTypeDef hdma_usart3_rx;
 extern UART_HandleTypeDef huart3;
@@ -90,6 +92,24 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
+
+	TIM1->CCR1 = 0;
+	TIM1->CCR2 = 0;
+	TIM1->CCR3 = 0;
+	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+	HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+	HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
+	HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_3);
+
+	HAL_TIM_Base_Stop_IT(&htim3);
+
+	TIM4->CCR1 = 0;
+	HAL_TIM_PWM_Stop(&htim4, TIM_CHANNEL_1);
+
+	HAL_GPIO_WritePin(GPIOC, LED_RED_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOB, LED_GREEN_Pin, GPIO_PIN_SET);
 
   /* USER CODE END HardFault_IRQn 0 */
   while (1)

@@ -136,7 +136,7 @@ int main(void)
   decltype(auto) Start      = Pin{GPIOB, START_Pin    };
   decltype(auto) Motor      = Pin{GPIOA, ASYNC_Pin    };
 
-  decltype(auto) adc = ADC_ {adc_callback, adc_injected_callback, 4, 10};
+  decltype(auto) adc = ADC_ {adc_callback, adc_injected_callback, 4, 5};
 
   decltype(auto) uart = UART_<>{led_can};
 

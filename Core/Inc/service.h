@@ -54,6 +54,7 @@ struct Out_data{
 
 constexpr float k_adc   = 3.3 / 4095;
 constexpr float k_adc_i = 3 * k_adc / 2 / 0.0167; // 3 и 2 потому что делитель 10 и 20 кОм, 0,025 В/А
+constexpr float k_u     = 3.3 * 450.00 / 4095.00;
 const uint16_t measure_time{25};
 constexpr uint16_t qty_measure = 200 / measure_time;
 
@@ -71,12 +72,10 @@ class Service
 	int16_t HV_avarage{0};
 
 	Timer timer;
-	Timer press_delay;
 	Timer measure_timer{measure_time};
 
 	uint8_t reg{0};
 	int16_t new_hv{0};
-	int16_t new_pressure{0};
 	bool event{false};
 	bool kolhoz{false};
 	bool done{true};
@@ -159,6 +158,9 @@ public:
 		outData.convertor_temp  = ntc(adc[Trad]);
 		outData.current        = (abs(adc.value(PS) - adc.offset_I_S)) * 100 / 21;
 		outData.current_A      = adc.current();
+
+//		new_hv = static_cast<float>(adc.value_HV()) * k_u;
+//		outData.high_voltage  += (new_hv - outData.high_voltage) * 1 / 3;
 
 		new_hv = (adc.value_HV() * 350 / 4095 * 45) / 10;
 		if(measure_timer.done()) {
