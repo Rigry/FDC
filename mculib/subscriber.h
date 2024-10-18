@@ -27,7 +27,7 @@ struct Publisher
           if( subscriber[i] != 0)
     	  	  subscriber[i]->notify();
           else
-        	  break;
+        	  continue;
       }
     }
 };

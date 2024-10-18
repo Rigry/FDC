@@ -30,6 +30,9 @@ class Convertor {
 	Timer rerun;
 	Timer timer_stop;
 	Timer clump_timer;
+	Timer work;
+	Timer rest;
+	Timer blink;
 
 //	uint16_t sin_table[qty_point]{3600, 5514, 6764
 //								, 7199, 6764, 6764
@@ -171,7 +174,7 @@ public:
 		if(service.outData.high_voltage <= 300) U_stop = true;
 		else if(service.outData.high_voltage > 310) {U_stop = false; adc.reset_error_HV();}
 
-		if (service.outData.error.overheat_fc |= service.outData.convertor_temp >= 80) {
+		if (service.outData.error.overheat_fc |= service.outData.convertor_temp >= 75) {
 			service.outData.error.overheat_fc = service.outData.convertor_temp >= 70;
 		}
 
@@ -237,12 +240,19 @@ if(motor == ASYNCHRON) {
 }
 
 			enable = Start
-					 and not rerun.isCount()
+					 and not rerun.isCount() and not rest.isCount()
 					 and not service.outData.error.overheat_fc and not service.outData.error.overheat_c
 					 and not service.outData.error.voltage_board_low and not service.outData.error.voltage_board_high
 					 and not U_stop;
 
 			if(rerun.done()) rerun.stop();
+			if(rest.done()) rest.stop();
+			if (blink.done() and rest.isCount()) {
+				blink.stop();
+				blink.start(300);
+				led_red ^= true;
+				led_green = not led_red;
+			}
 
 			if (enable){
 				rerun.stop();
@@ -256,7 +266,7 @@ if(motor == ASYNCHRON) {
 			if (not Start) {
 				rerun.stop();
 				rerun.time_set = 0;
-				led_red = false;
+//				led_red = false;
 				adc.reset_error();
 				phase = false;
 			}
@@ -518,8 +528,12 @@ if(motor == ASYNCHRON) {
 		service.outData.error.HV = false;
 
 		led_red = false;
+		led_green  = false;
+		blink.stop();
 		if(motor == SYNCHRON)
 			unload = true;
+
+		work.start(600'000);
 	}
 
 	void stop() {
@@ -545,6 +559,8 @@ if(motor == ASYNCHRON) {
 		state = State::wait;
 		adc.measure_offset();
 
+		work.stop();
+
 	}
 
 	void alarm() {
@@ -554,13 +570,13 @@ if(motor == ASYNCHRON) {
 		  )
 		{
 			if(not Start and not timer_stop.isCount()) {
-//				timer_stop.start(1000);
-				stop();
-				timer_stop.stop();
-				if (motor == SYNCHRON) {
-					unload = true;
-					clump_timer.start(15000);
-				}
+				timer_stop.start(1000);
+//				stop();
+//				timer_stop.stop();
+//				if (motor == SYNCHRON) {
+//					unload = true;
+//					clump_timer.start(15000);
+//				}
 			}
 
 			if(timer_stop.done() and not Start) {
@@ -586,6 +602,16 @@ if(motor == ASYNCHRON) {
 			}
 
 		}
+
+		if (work.done() and state == starting) {
+			stop();
+			if (motor == SYNCHRON) {
+				unload = true;
+				clump_timer.start(15000);
+			}
+			rest.start(240'000);
+			blink.start(300);
+		}
 //if(motor == SYNCHRON) {
 //
 //	if (TIM3->ARR >= (min_ARR + 5)) {
@@ -607,7 +633,7 @@ if(motor == ASYNCHRON) {
 
 		if(adc.is_error_HV()) {
 			adc.reset_error_HV();
-			led_red = true;
+//			led_red = true;
 			stop();
 			service.outData.error.HV = true;
 			rerun.start(5000);
