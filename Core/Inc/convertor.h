@@ -6,6 +6,8 @@
 #include "interrupt.h"
 #include "pin.h"
 
+#define CONDITIONER
+
 class Convertor {
 
 	enum {SYNCHRON = false, ASYNCHRON = true};
@@ -81,6 +83,7 @@ class Convertor {
 	uint16_t min_ARR{360};
 	uint16_t value_ARR{380};
 	uint16_t ARR_ASIN{2000};
+	uint16_t ARR_CONDIT{1333};
 
 	bool enable{true};
 	bool phase{false};
@@ -117,8 +120,8 @@ class Convertor {
 
 	void period_interrupt(){
 
-		if (Km >= 990) {
-			Km = 990;
+		if (Km >= 750) {
+			Km = 750;
 		}
 
 		TIM1->CCR1 = Km * sin_table[m++] / 1000;
@@ -178,36 +181,39 @@ public:
 			service.outData.error.overheat_fc = service.outData.convertor_temp >= 70;
 		}
 
-/////////////////CONDITIONER
-//		if (cool |= service.outData.convertor_temp >= 40) {
-//			cool = service.outData.convertor_temp >= 30;
-//		}
-//
+#ifdef CONDITIONER
+///////////////CONDITIONER
+		if (cool |= service.outData.convertor_temp >= 35) {
+			cool = service.outData.convertor_temp >= 30;
+		}
+
 //		if(enable)
-//			ventilator = cool;
+			ventilator = cool;
 //		else
 //			ventilator = false;
-/////////////////CONDITIONER
-
+///////////////CONDITIONER
+#endif
 		if(contactor.is_on() and enable) alarm();
 
 		switch(state) {
 		case wait:
 
 if(motor == ASYNCHRON) {
+
+#ifdef CONDITIONER
 /////////////////CONDITIONER
-/*
-	adc.set_max_current(35);
-	adc.set_max_current_phase(36);
-	if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
-		U_phase_max = ((((service.outData.high_voltage / 20) * 990) / 141) * 115) / 100;
+	adc.set_max_current(14);
+	adc.set_max_current_phase(18);
+	if (service.outData.high_voltage > 300 and service.outData.high_voltage < 400) {
+		U_phase_max = ((((service.outData.high_voltage / 20) * 990) / 141) * 112) / 100;
 		min_ARR = (div_f / ((U_phase_max) * 9)) * 22; // 5/22 = 50/220
+		if(min_ARR <= ARR_CONDIT) min_ARR = ARR_CONDIT;
 	} else {
-		U_phase_max = 220;
-		min_ARR = 1100;
+		U_phase_max = 180;
+		min_ARR = ARR_CONDIT;
 	}
-*/
 /////////////////CONDITIONER
+#else
 	adc.set_max_current(16);
 	adc.set_max_current_phase(20);
 	unload = false;
@@ -219,7 +225,7 @@ if(motor == ASYNCHRON) {
 		U_phase_max = 220;
 		min_ARR = ARR_ASIN;
 	}
-
+#endif
 
 } else if (motor == SYNCHRON) {
 
@@ -241,7 +247,7 @@ if(motor == ASYNCHRON) {
 
 			enable = Start
 					 and not rerun.isCount() and not rest.isCount()
-					 and not service.outData.error.overheat_fc and not service.outData.error.overheat_c
+					 and not service.outData.error.overheat_fc /*and not service.outData.error.overheat_c*/
 					 and not service.outData.error.voltage_board_low and not service.outData.error.voltage_board_high
 					 and not U_stop;
 
@@ -278,59 +284,58 @@ if(motor == ASYNCHRON) {
 
 if(motor == ASYNCHRON) {
 
+#ifdef CONDITIONER
 /////////////////CONDITIONER
-
-	/*
-	if (service.outData.high_voltage > 400 and service.outData.high_voltage < 540) {
+	if (service.outData.high_voltage > 300 and service.outData.high_voltage < 400) {
 		U_phase_max = ((((service.outData.high_voltage / 20) * 990) / 141) * 115) / 100;
 		min_ARR = (div_f / ((U_phase_max) * 9)) * 22; // 5/22 = 50/220
+		if(min_ARR <= ARR_CONDIT) min_ARR = ARR_CONDIT;
 	} else {
-		U_phase_max = 220;
-		min_ARR = 1100;
+		U_phase_max = 180;
+		min_ARR = ARR_CONDIT;
 	}
 
-	U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 112) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
-	Km = offset + ((Kp * (div_f / TIM3->ARR) / (service.outData.high_voltage)));
+//	U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 112) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
+	Km = offset + ( ((Kp * (div_f / TIM3->ARR) / (service.outData.high_voltage + 1))) );
 
-	if (TIM3->ARR <= (min_ARR + 10)) {
+	if (TIM3->ARR <= uint32_t(min_ARR + 10)) {
 		error = 0;
 	}
 
-	if (Kp > 12000) {
-		Kp = 12000;
+	if (Kp >= 5500) {
+		Kp = 5500;
 	}
 
 	if (TIM3->ARR <= min_ARR) {
-		if (U_phase - U_phase_max > 10) {
-			Kp--;
-		} else {
-			if((U_phase_max - U_phase > 10))
-				Kp++;
-		}
+//		if (U_phase - U_phase_max > 10) {
+//			Kp--;
+//		} else {
+//			if((U_phase_max - U_phase > 10))
+//				Kp++;
+//		}
 
-		if (adc.current() > 200) {
-			if (Kp > 5000) {
+		if (adc.current() > 180) {
+			if (Kp > 4500) {
 				Kp -= 4;
 			}
 		}
 	}
 
-	if (adc.current() < 35) {
-		if (Kp < 12000) {
+	if (adc.current() < 140) {
+		if (Kp < 5500) {
 			Kp++;
 		}
 	}
 
-	if (TIM3->ARR > (min_ARR + 5)) {
-		if (adc.current() > 75) {
-			if (Kp >= 6000) {
+	if (TIM3->ARR > uint32_t(min_ARR + 5)) {
+		if (adc.current() > 100) {
+			if (Kp >= 5000) {
 				Kp--;
 			}
 		}
 	}
-*/
 /////////////////CONDITIONER
-
+#else
 
 	if (service.outData.high_voltage > 300 and service.outData.high_voltage < 540) {
 		U_phase_max = ((((service.outData.high_voltage / 20) * 990) / 141) * 115) / 100;
@@ -342,7 +347,7 @@ if(motor == ASYNCHRON) {
 	}
 
 	U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 112) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
-	Km = offset + ( (Kp * (div_f / TIM3->ARR) / service.outData.high_voltage ) * 4 )/ 3;
+	Km = offset + ( (Kp * (div_f / TIM3->ARR) / service.outData.high_voltage + 1 ) * 4 )/ 3;
 
 	if (TIM3->ARR <= uint32_t(min_ARR + 5)) {
 		unload = true;
@@ -382,7 +387,7 @@ if(motor == ASYNCHRON) {
 		}
 	}
 
-
+#endif
 } else if(motor == SYNCHRON) {
 
 //	service.outData.high_voltage = 550;
@@ -398,7 +403,7 @@ if(motor == ASYNCHRON) {
 
 				U_phase = ((((service.outData.high_voltage / 20) * Km) / 141) * 115) / 100; // 31 = 620 / 20; 141 = sqrt(2) * 100; 115 = добавочный
 //				U_phase += (U_phase_max - U_phase) * 10 / 50;
-				Km = offset + Kp * (div_f / TIM3->ARR) / (service.outData.high_voltage);
+				Km = offset + Kp * (div_f / TIM3->ARR) / (service.outData.high_voltage + 1);
 
 				if (TIM3->ARR <= uint32_t(min_ARR + 5)) {
 					unload = false;
@@ -495,10 +500,16 @@ if(motor == ASYNCHRON) {
 	void pusk() {
 
 		if(motor == ASYNCHRON) {
+#ifdef CONDITIONER
 				frequency = 5;
+				Kp = 2500;
+				time = 5;
+				offset = 10;
+#else
 				Kp = 6000;
 				time = 3;
 				offset = 30;
+#endif
 
 		} else if(motor == SYNCHRON) {
 				frequency = 5;
@@ -532,8 +543,11 @@ if(motor == ASYNCHRON) {
 		blink.stop();
 		if(motor == SYNCHRON)
 			unload = true;
-
+#ifdef CONDITIONER
+//		work.start(600'000);
+#else
 		work.start(600'000);
+#endif
 	}
 
 	void stop() {
@@ -565,13 +579,13 @@ if(motor == ASYNCHRON) {
 
 	void alarm() {
 		if((not Start or timer_stop.done()) or not contactor.is_on()
-				      or service.outData.error.overheat_fc or service.outData.error.overheat_c or service.outData.error.HV_low
+				      or service.outData.error.overheat_fc /*or service.outData.error.overheat_c*/ or service.outData.error.HV_low
 					  or service.outData.error.voltage_board_low or service.outData.error.voltage_board_high
 		  )
 		{
 			if(not Start and not timer_stop.isCount()) {
-				timer_stop.start(1000);
-//				stop();
+//				timer_stop.start(1000);
+				stop();
 //				timer_stop.stop();
 //				if (motor == SYNCHRON) {
 //					unload = true;
@@ -589,7 +603,7 @@ if(motor == ASYNCHRON) {
 			}
 
 			if(not contactor.is_on()
-				     or service.outData.error.overheat_fc or service.outData.error.overheat_c
+				     or service.outData.error.overheat_fc /*or service.outData.error.overheat_c*/
 				     or service.outData.error.HV_low or service.outData.error.voltage_board_low or service.outData.error.voltage_board_high) {
 				stop();
 				timer_stop.stop();

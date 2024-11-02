@@ -148,13 +148,13 @@ class ADC_ : TickSubscriber
 
 			if (arr_S[j] / 21 >= max_current and Km_check) {
 				over_current_s++;
-				if (over_current_s >= 4)
+				if (over_current_s >= 3)
 					over_cur_s = true;
 			}
 
 			if (arr_A[j] / 21 >= max_current_phase and Km_check) {
 				over_current_a++;
-				if (over_current_a >= 4) {  // 3
+				if (over_current_a >= 3) {  // 3
 					over_cur_phase++;
 					over_current_a = 0;
 					if(over_cur_phase >= 3) {
@@ -165,7 +165,7 @@ class ADC_ : TickSubscriber
 
 			if (arr_C[j] / 21 >= max_current_phase and Km_check) {
 				over_current_c++;
-				if (over_current_c >= 4) { // 3
+				if (over_current_c >= 3) { // 3
 					over_cur_phase++;
 					over_current_c = 0;
 					if(over_cur_phase >= 3)
