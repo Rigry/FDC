@@ -31,7 +31,7 @@ Core/Src/main.o: ../Core/Src/main.cpp ../Core/Inc/main.h \
  ../mculib/systick.h ../Core/Inc/convertor.h ../Core/Inc/adc.h \
  ../Core/Inc/interrupt.h ../Core/Inc/service.h ../Core/Inc/uart.h \
  ../Core/Inc/net_buffer.h ../Core/Inc/pin.h ../Core/Inc/ntc.h \
- ../Core/Inc/contactor.h
+ ../Core/Inc/contactor.h ../Core/Inc/blinker.h
 
 ../Core/Inc/main.h:
 
@@ -116,3 +116,5 @@ Core/Src/main.o: ../Core/Src/main.cpp ../Core/Inc/main.h \
 ../Core/Inc/ntc.h:
 
 ../Core/Inc/contactor.h:
+
+../Core/Inc/blinker.h:

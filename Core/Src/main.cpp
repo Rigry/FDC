@@ -144,8 +144,10 @@ int main(void)
   decltype(auto) service = Service<In_data, Out_data>{adc, ntc, uart, interrupt_dma, interrupt_uart};
   decltype(auto) contactor = Contactor{adc, service};
 //  decltype(auto) cooler = Cooler{service};
+  decltype(auto) blinker = Blinker{led_red};
+//  blinker.start_qty(6);
 
-  decltype(auto) convertor = Convertor{adc, service, contactor, period_callback/*, adc_comparator_callback*/, led_red, led_green, ventilator, unload, condens, TD_DM, SP, Start, Motor};
+  decltype(auto) convertor = Convertor{adc, service, contactor, period_callback/*, adc_comparator_callback*/, blinker, led_red, led_green, ventilator, unload, condens, TD_DM, SP, Start, Motor};
 
 //  Timer timer1{500};
 

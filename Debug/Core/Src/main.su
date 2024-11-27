@@ -73,26 +73,30 @@ contactor.h:18:7:void Contactor::start()	16	static
 contactor.h:24:7:void Contactor::stop()	16	static
 contactor.h:32:7:bool Contactor::is_on()	16	static
 contactor.h:36:7:void Contactor::operator()()	16	static
-convertor.h:101:3:Convertor::TIM3_interrupt::TIM3_interrupt(Convertor::Parent&)	16	static
-convertor.h:105:8:virtual void Convertor::TIM3_interrupt::interrupt()	16	static
-convertor.h:121:7:void Convertor::period_interrupt()	16	static
-convertor.h:147:2:Convertor::Convertor(ADC_&, Service<In_data, Out_data>&, Contactor&, Interrupt&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	24	static
-convertor.h:159:7:void Convertor::operator()()	24	static
-convertor.h:500:7:void Convertor::pusk()	16	static
-convertor.h:553:7:void Convertor::stop()	16	static
-convertor.h:580:7:void Convertor::alarm()	16	static
-convertor.h:704:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
-main.cpp:93:5:int main()	896	static
-main.cpp:179:6:void SystemClock_Config()	96	static
-main.cpp:225:13:void MX_ADC1_Init()	24	static
-main.cpp:294:13:void MX_ADC2_Init()	64	static
-main.cpp:408:13:void MX_TIM1_Init()	80	static
-main.cpp:481:13:void MX_TIM3_Init()	48	static
-main.cpp:529:13:void MX_TIM4_Init()	48	static
-main.cpp:578:13:void MX_USART3_UART_Init()	8	static
-main.cpp:609:13:void MX_DMA_Init()	16	static
-main.cpp:633:13:void MX_GPIO_Init()	40	static
-main.cpp:701:6:void Error_Handler()	4	static,ignoring_inline_asm
+blinker.h:15:2:Blinker::Blinker(Pin&)	16	static
+blinker.h:20:7:void Blinker::start_qty(uint8_t)	16	static
+blinker.h:26:7:void Blinker::stop()	16	static
+blinker.h:35:7:virtual void Blinker::notify()	16	static
+convertor.h:105:3:Convertor::TIM3_interrupt::TIM3_interrupt(Convertor::Parent&)	16	static
+convertor.h:109:8:virtual void Convertor::TIM3_interrupt::interrupt()	16	static
+convertor.h:125:7:void Convertor::period_interrupt()	16	static
+convertor.h:156:2:Convertor::Convertor(ADC_&, Service<In_data, Out_data>&, Contactor&, Interrupt&, Blinker&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	24	static
+convertor.h:169:7:void Convertor::operator()()	24	static
+convertor.h:533:7:void Convertor::pusk()	16	static
+convertor.h:596:7:void Convertor::stop()	16	static
+convertor.h:648:7:void Convertor::alarm()	16	static
+convertor.h:780:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
+main.cpp:93:5:int main()	928	static
+main.cpp:181:6:void SystemClock_Config()	96	static
+main.cpp:227:13:void MX_ADC1_Init()	24	static
+main.cpp:296:13:void MX_ADC2_Init()	64	static
+main.cpp:410:13:void MX_TIM1_Init()	80	static
+main.cpp:483:13:void MX_TIM3_Init()	48	static
+main.cpp:531:13:void MX_TIM4_Init()	48	static
+main.cpp:580:13:void MX_USART3_UART_Init()	8	static
+main.cpp:611:13:void MX_DMA_Init()	16	static
+main.cpp:635:13:void MX_GPIO_Init()	40	static
+main.cpp:703:6:void Error_Handler()	4	static,ignoring_inline_asm
 static_vector.h:22:10:void Static_vector<T, size_>::push_back(T) [with T = Subscriber*; unsigned int size_ = 12]	16	static
 static_vector.h:27:10:void Static_vector<T, size_>::remove(T) [with T = Subscriber*; unsigned int size_ = 12]	24	static
 static_vector.h:20:13:uint8_t Static_vector<T, size_>::cend() const [with T = Subscriber*; unsigned int size_ = 12]	16	static
@@ -117,9 +121,9 @@ service.h:107:3:Service<In_data_t, Out_data_t>::dma_interrupt::dma_interrupt(Ser
 net_buffer.h:39:10:void Net_buffer<size_>::to_bytes(uint16_t, uint8_t&, uint8_t&) [with unsigned char size_ = 26]	32	static
 net_buffer.h:71:20:Net_buffer<size_>& Net_buffer<size_>::operator<<(uint8_t) [with unsigned char size_ = 26]	16	static
 net_buffer.h:16:14:uint8_t* Net_buffer<size_>::ptr() [with unsigned char size_ = 26]	16	static
-main.cpp:710:1:void __static_initialization_and_destruction_0(int, int)	16	static
+main.cpp:712:1:void __static_initialization_and_destruction_0(int, int)	16	static
 service.h:111:8:void Service<In_data_t, Out_data_t>::dma_interrupt::interrupt() [with In_data_t = In_data; Out_data_t = Out_data]	16	static
 service.h:100:8:void Service<In_data_t, Out_data_t>::uart_interrupt::interrupt() [with In_data_t = In_data; Out_data_t = Out_data]	16	static
 service.h:88:7:void Service<In_data_t, Out_data_t>::dmaInterrupt() [with In_data_t = In_data; Out_data_t = Out_data]	16	static
 service.h:83:7:void Service<In_data_t, Out_data_t>::uartInterrupt() [with In_data_t = In_data; Out_data_t = Out_data]	16	static
-main.cpp:710:1:cpp)	8	static
+main.cpp:712:1:cpp)	8	static
